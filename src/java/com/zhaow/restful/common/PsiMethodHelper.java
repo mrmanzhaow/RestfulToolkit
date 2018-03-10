@@ -4,17 +4,15 @@ package com.zhaow.restful.common;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
-import com.zhaow.restful.annotations.SpringRequestAnnotation;
+import com.zhaow.restful.annotations.JaxrsRequestAnnotation;
+import com.zhaow.restful.annotations.SpringControllerAnnotation;
+import com.zhaow.restful.common.jaxrs.JaxrsAnnotationHelper;
 import com.zhaow.restful.method.Parameter;
-import com.zhaow.restful.method.RequestMapping;
-import com.zhaow.restful.method.action.RequestMappingAnnotationHelper;
-import com.zhaow.restful.navigation.action.RestServiceItem;
-import org.apache.commons.lang.StringUtils;
+import com.zhaow.restful.common.spring.RequestMappingAnnotationHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.zhaow.restful.annotations.SpringRequestParamAnnotations.*;
 
@@ -26,8 +24,6 @@ public class PsiMethodHelper {
     Project myProject;
     Module myModule;
 
-
-    private static final String REQUEST_METHOD_GET = "RequestMethod.GET";
     private String pathSeparator= "/";
 
     public static PsiMethodHelper create(@NotNull PsiMethod psiMethod) {
@@ -68,25 +64,6 @@ public class PsiMethodHelper {
         return param.length() >0 ? param.deleteCharAt(param.length()-1).toString() : "";
     }
 
-    private boolean matchGetMethod() {
-        PsiModifierList modifierList = psiMethod.getModifierList();
-        // GetMapping
-        PsiAnnotation getMappingAnnotation = modifierList.findAnnotation(SpringRequestAnnotation.GET_MAPPING.getQualifiedName());
-        if (getMappingAnnotation != null) {
-            return true;
-        }
-        // RequestMapping.method == null or 'GET'
-        PsiAnnotation reqMappingAnnotation = modifierList.findAnnotation(SpringRequestAnnotation.REQUEST_MAPPING.getQualifiedName());
-        if (reqMappingAnnotation == null) {
-            return false;
-        }
-        PsiAnnotationMemberValue requestMethod = reqMappingAnnotation.findDeclaredAttributeValue("method");
-        if( (requestMethod != null && requestMethod.equals(REQUEST_METHOD_GET)) ){
-            return true;
-        }
-        return false;
-    }
-
     /*获取方法中基础类型（primitive和string、date等以及这些类型数组）*/
     @NotNull
     public Map<String, Object> getBaseTypeParameterMap() {
@@ -104,8 +81,8 @@ public class PsiMethodHelper {
             // todo 判断类型
             // 8 PsiPrimitiveType
             // 8 boxed types; String,Date:PsiClassReferenceType == field.getType().getPresentableText()
-            String paramType = parameter.getShortTypeName();
-            Object defaultValue = PsiClassHelper.getJavaBaseTypeDefaultValue(paramType);
+            String shortTypeName = parameter.getShortTypeName();
+            Object defaultValue = PsiClassHelper.getJavaBaseTypeDefaultValue(shortTypeName);
             //简单常用类型
             if (defaultValue != null) {
                 baseTypeParamMap.put(parameter.getParamName(),(defaultValue));
@@ -113,7 +90,7 @@ public class PsiMethodHelper {
             }
 
             PsiClassHelper psiClassHelper = PsiClassHelper.create(psiMethod.getContainingClass());
-            PsiClass psiClass = psiClassHelper.findOnePsiClassByClassName(paramType, getProject());
+            PsiClass psiClass = psiClassHelper.findOnePsiClassByClassName(parameter.getParamType(), getProject());
             if (psiClass != null) {
                 PsiField[] fields = psiClass.getFields();
                 for (PsiField field : fields) {
@@ -207,37 +184,6 @@ public class PsiMethodHelper {
     }
 
 
-    //Note: 当Controller 类上没有标记@RequestMapping 注解时，方法上的@RequestMapping 都是绝对路径。
-    public List<RestServiceItem> getServiceItemList() {
-        List<RestServiceItem> itemList = new ArrayList<>();
-
-        RequestMapping[] requestMappings = RequestMappingAnnotationHelper.getRequestMappings(psiMethod);
-
-        //TODO:  controller 没有设置requestMapping，默认“/”
-        // TODO : controller 设置了(rest)controller 所有方法未指定 requestMapping，所有方法均匹配； 存在方法指定 requestMapping，则只解析这些方法；
-        String[] controllerPaths = RequestMappingAnnotationHelper.getRequestMappingValues(psiMethod.getContainingClass());
-
-        for (String controllerPath : controllerPaths) {
-            for (RequestMapping requestMapping : requestMappings) {
-                String methodPath = requestMapping.getPath();
-
-                String requestPath;
-                if (!controllerPath.startsWith("/")) controllerPath = "/".concat(controllerPath);
-                if (!controllerPath.endsWith("/")) controllerPath = controllerPath.concat("/");
-                if (methodPath.startsWith("/")) methodPath = methodPath.substring(1, methodPath.length());
-                requestPath = controllerPath + methodPath;
-
-                RestServiceItem item = new RestServiceItem(psiMethod, requestMapping.getMethod(), requestPath);
-                if (myModule != null) {
-                    item.setModule(myModule);
-                }
-
-                itemList.add(item);
-            }
-        }
-
-        return itemList;
-    }
 
     public String buildRequestBodyJson() {
         List<Parameter> parameterList = this.getParameterList();
@@ -250,9 +196,24 @@ public class PsiMethodHelper {
     }
 
     @NotNull
-    public static String buildServicePath(PsiMethod psiMethod) {
-        String ctrlPath = getOneRequestMappingPath(psiMethod.getContainingClass());
-        String methodPath = getOneRequestMappingPath(psiMethod);
+    public static String buildServiceUriPath(PsiMethod psiMethod) {
+        String ctrlPath = null;
+        String methodPath = null;
+
+        //判断rest服务提供方式 spring or jaxrs
+        PsiClass containingClass = psiMethod.getContainingClass();
+        RestSupportedAnnotationHelper annotationHelper;
+        if (isSpringRestSupported(containingClass)) {
+            ctrlPath = RequestMappingAnnotationHelper.getOneRequestMappingPath(containingClass);
+            methodPath = RequestMappingAnnotationHelper.getOneRequestMappingPath(psiMethod);
+        }else if(isJaxrsRestSupported(containingClass)){
+            ctrlPath = JaxrsAnnotationHelper.getClassUriPath(containingClass);
+            methodPath = JaxrsAnnotationHelper.getMethodUriPath(psiMethod);
+        }
+
+        if (ctrlPath == null) {
+            return null;
+        }
 
         if (!ctrlPath.startsWith("/")) ctrlPath = "/".concat(ctrlPath);
         if (!ctrlPath.endsWith("/")) ctrlPath = ctrlPath.concat("/");
@@ -261,71 +222,37 @@ public class PsiMethodHelper {
         return ctrlPath + methodPath;
     }
 
+    @NotNull
+    public static String buildServiceUriPathWithParams(PsiMethod psiMethod) {
+        String serviceUriPath = buildServiceUriPath(psiMethod);
 
-    String concat(String path1, String path2) {
-        if (StringUtils.isBlank(path1) && StringUtils.isBlank(path2)) {
-            return "";
+        String params = PsiMethodHelper.create(psiMethod).buildParamString();
+        // RequestMapping 注解设置了 param
+        if (!params.isEmpty()) {
+            StringBuilder urlBuilder = new StringBuilder(serviceUriPath);
+            return urlBuilder.append(serviceUriPath.contains("?") ? "&": "?").append(params).toString();
         }
-        if (StringUtils.isBlank(path1)) {
-            return path2;
-        }
-        if (StringUtils.isBlank(path2)) {
-            return path1;
-        }
-
-        boolean path1EndsWithSeparator = path1.endsWith(this.pathSeparator);
-        boolean path2StartsWithSeparator = path2.startsWith(this.pathSeparator);
-
-        if (path1EndsWithSeparator && path2StartsWithSeparator) {
-            return path1 + path2.substring(1);
-        }
-        else if (path1EndsWithSeparator || path2StartsWithSeparator) {
-            return path1 + path2;
-        }
-        else {
-            return path1 + this.pathSeparator + path2;
-        }
+        return  serviceUriPath;
     }
 
-    public static String getOneRequestMappingPath(PsiMethod psiMethod) {
-//        System.out.println("psiMethod:::::::" + psiMethod);
-        SpringRequestAnnotation requestAnnotation = null;
+    //包含 "RestController" "Controller"
+    public static boolean isSpringRestSupported(PsiClass containingClass) {
+        PsiModifierList modifierList = containingClass.getModifierList();
 
-        List<SpringRequestAnnotation> springRequestAnnotations = Arrays.stream(SpringRequestAnnotation.values()).filter(annotation ->
-                psiMethod.getModifierList().findAnnotation(annotation.getQualifiedName()) != null
-        ).collect(Collectors.toList());
+        /*return modifierList.findAnnotation(SpringControllerAnnotation.REST_CONTROLLER.getQualifiedName()) != null ||
+                modifierList.findAnnotation(SpringControllerAnnotation.CONTROLLER.getQualifiedName()) != null ;*/
 
-       /* if (springRequestAnnotations.size() == 0) {
-            requestAnnotation = null;
-        }*/
+        return modifierList.findAnnotation(SpringControllerAnnotation.REST_CONTROLLER.getQualifiedName()) != null ||
+                modifierList.findAnnotation(SpringControllerAnnotation.CONTROLLER.getQualifiedName()) != null ;
+    }
 
-        if (springRequestAnnotations.size() > 0) {
-            requestAnnotation = springRequestAnnotations.get(0);
-        }
+    //包含 "RestController" "Controller"
+    public static boolean isJaxrsRestSupported(PsiClass containingClass) {
+        PsiModifierList modifierList = containingClass.getModifierList();
 
-        String mappingPath;
-        if(requestAnnotation != null){
-            PsiAnnotation annotation = psiMethod.getModifierList().findAnnotation(requestAnnotation.getQualifiedName());
-            mappingPath = RequestMappingAnnotationHelper.getRequestMappingValue(annotation);
-        }else {
-            String methodName = psiMethod.getName();
-            mappingPath = StringUtils.uncapitalize(methodName);
-        }
-
-        return mappingPath;
+        return modifierList.findAnnotation(JaxrsRequestAnnotation.PATH.getQualifiedName()) != null ;
     }
 
 
-    public static String getOneRequestMappingPath(PsiClass psiClass) {
-        // todo: 有必要 处理 PostMapping,GetMapping 么？
-        PsiAnnotation annotation = psiClass.getModifierList().findAnnotation(SpringRequestAnnotation.REQUEST_MAPPING.getQualifiedName());
-
-        String path = null;
-        if (annotation != null) {
-            path = RequestMappingAnnotationHelper.getRequestMappingValue(annotation);
-        }
-
-        return path != null ? path : "";
-    }
 
 }

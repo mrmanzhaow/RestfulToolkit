@@ -15,7 +15,7 @@ import static com.intellij.openapi.actionSystem.CommonDataKeys.PSI_ELEMENT;
  * tood: 没考虑RequestMapping 多个值的情况
  */
 public class
-GenerateFullUrlAction extends RestfulMethodBaseAction {
+GenerateFullUrlAction extends RestfulMethodSpringSupportedAction {
 
     @Override
     public void actionPerformed(AnActionEvent e) {

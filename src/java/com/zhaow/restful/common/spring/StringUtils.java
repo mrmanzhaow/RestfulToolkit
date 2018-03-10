@@ -65,40 +65,6 @@ public abstract class StringUtils {
 	}
 
 	/**
-	 * Check that the given {@code String} is neither {@code null} nor of length 0.
-	 * <p>Note: this method returns {@code true} for a {@code String} that
-	 * purely consists of whitespace.
-	 * @param str the {@code String} to check (may be {@code null})
-	 * @return {@code true} if the {@code String} is not {@code null} and has length
-	 * @see #hasLength(CharSequence)
-	 * @see #hasText(String)
-	 */
-	public static boolean hasLength(String str) {
-		return hasLength((CharSequence) str);
-	}
-
-	/**
-	 * Trim leading and trailing whitespace from the given {@code String}.
-	 * @param str the {@code String} to check
-	 * @return the trimmed {@code String}
-	 * @see Character#isWhitespace
-	 */
-	public static String trimWhitespace(String str) {
-		if (!hasLength(str)) {
-			return str;
-		}
-
-		StringBuilder sb = new StringBuilder(str);
-		while (sb.length() > 0 && Character.isWhitespace(sb.charAt(0))) {
-			sb.deleteCharAt(0);
-		}
-		while (sb.length() > 0 && Character.isWhitespace(sb.charAt(sb.length() - 1))) {
-			sb.deleteCharAt(sb.length() - 1);
-		}
-		return sb.toString();
-	}
-
-	/**
 	 * Copy the given {@code Collection} into a {@code String} array.
 	 * <p>The {@code Collection} must contain {@code String} elements only.
 	 * @param collection the {@code Collection} to copy

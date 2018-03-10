@@ -5,14 +5,14 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.psi.*;
 import com.zhaow.restful.action.AbstractBaseAction;
 import com.zhaow.restful.annotations.SpringControllerAnnotation;
-import com.zhaow.restful.annotations.SpringRequestAnnotation;
+import com.zhaow.restful.annotations.SpringRequestMethodAnnotation;
 
 import java.util.Arrays;
 
 /**
  * Restful method （restful 方法添加方法 ）
  */
-public abstract class RestfulMethodBaseAction extends AbstractBaseAction {
+public abstract class RestfulMethodSpringSupportedAction extends AbstractBaseAction {
 
     /**
      * spring rest 方法被选中才触发
@@ -37,25 +37,25 @@ public abstract class RestfulMethodBaseAction extends AbstractBaseAction {
     private boolean isRestController(PsiClass containingClass) {
         PsiModifierList modifierList = containingClass.getModifierList();
 
+        /*return modifierList.findAnnotation(SpringControllerAnnotation.REST_CONTROLLER.getQualifiedName()) != null ||
+                modifierList.findAnnotation(SpringControllerAnnotation.CONTROLLER.getQualifiedName()) != null ;*/
+
         return modifierList.findAnnotation(SpringControllerAnnotation.REST_CONTROLLER.getQualifiedName()) != null ||
-                modifierList.findAnnotation(SpringControllerAnnotation.CONTROLLER.getQualifiedName()) != null ;
+                modifierList.findAnnotation(SpringControllerAnnotation.CONTROLLER.getQualifiedName()) != null /*||
+                modifierList.findAnnotation(JaxrsRequestAnnotation.PATH.getQualifiedName()) != null*/ ;
     }
 
     private boolean isRestfulMethod(PsiMethod psiMethod) {
-        return  containsSpringRequestAnnotation(psiMethod);
-    }
-
-
-    private boolean containsSpringRequestAnnotation(PsiMethod psiMethod) {
         PsiAnnotation[] annotations = psiMethod.getModifierList().getAnnotations();
 
         for (PsiAnnotation annotation : annotations) {
-            boolean match = Arrays.stream(SpringRequestAnnotation.values()).map(sra -> sra.getQualifiedName()).anyMatch(name -> name.equals(annotation.getQualifiedName()));
+            boolean match = Arrays.stream(SpringRequestMethodAnnotation.values()).map(sra -> sra.getQualifiedName()).anyMatch(name -> name.equals(annotation.getQualifiedName()));
             if(match) return match;
         }
 
         return false;
     }
+
 
 
 }

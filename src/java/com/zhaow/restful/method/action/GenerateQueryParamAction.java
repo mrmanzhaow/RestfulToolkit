@@ -13,7 +13,7 @@ import java.awt.datatransfer.StringSelection;
 /**
  * 生成查询参数
  */
-public class GenerateQueryParamAction extends RestfulMethodBaseAction {
+public class GenerateQueryParamAction extends RestfulMethodSpringSupportedAction {
 
     @Override
     public void actionPerformed(AnActionEvent e) {

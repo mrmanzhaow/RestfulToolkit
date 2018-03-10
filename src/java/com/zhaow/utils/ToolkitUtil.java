@@ -39,6 +39,7 @@ public class ToolkitUtil {
         }*/
 //        runDumbAware(project, r);
         invokeLater(project, r);
+//        ApplicationManager.getApplication().invokeAndWait(r);
     }
 
 

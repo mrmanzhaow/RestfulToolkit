@@ -23,10 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.List;
 import java.util.Map;
 
@@ -75,20 +72,20 @@ public class RestServiceDetail extends JBPanel/*WithEmptyText*/{
     public void initComponent() {
         initUI();
         initActions();
+        initTab();
     }
 
     private void initActions() {
-        initTab("{'key':'value'}");
 //        bindMouseEvent(servicesTree);
         bindSendButtonActionListener();
+
+        bindUrlTextActionListener();
     }
 
-
-    public void initTab(String text) {
-
+    public void initTab() {
 //        jTextArea.setAutoscrolls(true);
         String jsonFormat = "Try press 'Ctrl Enter'";
-        JTextArea textArea = createTextArea(text);
+        JTextArea textArea = createTextArea("{'key':'value'}");
 
         addRequestTabbedPane(jsonFormat, textArea);
     }
@@ -103,6 +100,7 @@ public class RestServiceDetail extends JBPanel/*WithEmptyText*/{
 //        urlField = new JBTextField();
 //        urlField.setColumns(20);
         urlField.setAutoscrolls(true);
+
 
 //        urlPanel.setLayout(new HorizontalLayout());
 
@@ -147,7 +145,6 @@ public class RestServiceDetail extends JBPanel/*WithEmptyText*/{
 
     private void bindSendButtonActionListener() {
         sendButton.addActionListener(e -> {
-
             // PluginManagerMain
             ProgressManager.getInstance().run(new Task.Backgroundable(null,"Sending Request") {
                 @Override
@@ -184,12 +181,16 @@ public class RestServiceDetail extends JBPanel/*WithEmptyText*/{
                         String response;
                         if (requestBodyTextArea != null && StringUtils.isNotBlank(requestBodyTextArea.getText())) {
                             response = RequestHelper.postRequestBodyWithJson(url, requestBodyTextArea.getText());
-                        } else if (method.equalsIgnoreCase("post")) {
+                        }else{
+                            response = RequestHelper.request(url, method);
+                        }
+
+                       /* else if (method.equalsIgnoreCase("post")) {
 //                response = HttpClientHelper.post(url);
                             response = RequestHelper.post(url);
                         } else {
                             response = RequestHelper.get(url);
-                        }
+                        }*/
 
                         if (response != null) responseText = response;
 
@@ -202,6 +203,45 @@ public class RestServiceDetail extends JBPanel/*WithEmptyText*/{
 
         });
     }
+
+    private void bindUrlTextActionListener() {
+
+        urlField.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                System.out.println(e.getClickCount());
+                super.mouseClicked(e);
+//                urlField.moveCaretPosition(urlField.getDocument().getLength());
+//                urlField.select(0,0);
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                super.mousePressed(e);
+//                urlField.selectAll();
+            }
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                super.mousePressed(e);
+                urlField.selectAll();
+            }
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                super.mousePressed(e);
+                urlField.selectAll();
+            }
+        });
+
+        methodField.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                super.mousePressed(e);
+                methodField.selectAll();
+            }
+        });
+
+    }
+
 
     public void addRequestParamsTab(String requestParams) {
 
@@ -233,7 +273,6 @@ public class RestServiceDetail extends JBPanel/*WithEmptyText*/{
     }
 
     public void addRequestBodyTabPanel(String text) {
-
 //        jTextArea.setAutoscrolls(true);
         String reqBodyTitle = "RequestBody";
         if (requestBodyTextArea == null){
@@ -390,9 +429,11 @@ public class RestServiceDetail extends JBPanel/*WithEmptyText*/{
         @Override
         public void keyPressed(KeyEvent event) {
             super.keyPressed(event);
-            // 组合键ctrl+enter自定义，当Ctrl+Enter组合键按下时响应
+
+            // 组合键ctrl+enter自定义，当Ctrl (Command on Mac)+Enter组合键按下时响应
             if ((event.getKeyCode() == KeyEvent.VK_ENTER)
-                    && (event.isControlDown())) {
+                    && (event.isControlDown() || event.isMetaDown()) ) {
+
                 //解析，格式化json
                 String oldValue = jTextArea.getText();
                 if (!JsonUtils.isValidJson(oldValue)) {

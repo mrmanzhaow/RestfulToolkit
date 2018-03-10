@@ -15,7 +15,7 @@ import com.intellij.util.text.DateFormatUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.text.SimpleDateFormat;
+import java.math.BigDecimal;
 import java.util.*;
 // 处理 实体自关联，第二层自关联字段
 public class PsiClassHelper {
@@ -83,8 +83,8 @@ public class PsiClassHelper {
 
     @Nullable
     public static Object getJavaBaseTypeDefaultValue(String paramType) {
-//        Map<String,Object> paramMap = new LinkedHashMap<>();
         Object paramValue = null;
+//        todo: using map later
         switch (paramType.toLowerCase()) {
             case "byte": paramValue = Byte.valueOf("1");break;
             case "char": paramValue = Character.valueOf('Z');break;
@@ -96,16 +96,69 @@ public class PsiClassHelper {
             case "float": paramValue = Float.valueOf(1.0F);break;
             case "long": paramValue = Long.valueOf(1L);break;
             case "short": paramValue = Short.valueOf("1");break;
+            case "bigdecimal": return BigDecimal.ONE;
             case "string": paramValue = "demoData";break;
-            case "date": paramValue = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()) ;break; // todo: format date
+            case "date": paramValue = DateFormatUtil.formatDateTime(new Date());break; // todo: format date
 //            default: paramValue = paramType;
         }
-//
-//        if (paramValue != null) {
-//            paramMap.put(paramType, paramValue);
-//        }
         return paramValue;
     }
+
+
+    private boolean isJavaBaseType(String typeName) {
+        return getJavaBaseTypeDefaultValue(typeName) != null;
+    }
+
+    private Object setFieldDefaultValue(PsiType psiFieldType, Project project) {
+
+        // 八种类型和包装类
+        String typeName = psiFieldType.getPresentableText();
+        /*if (isJavaBaseType(typeName)) {
+            return getJavaBaseTypeDefaultValue(typeName);
+        }*/
+        Object baseTypeDefaultValue = getJavaBaseTypeDefaultValue(typeName);
+        if (baseTypeDefaultValue != null) {
+            return baseTypeDefaultValue;
+        }
+
+
+
+        if (psiFieldType instanceof PsiClassReferenceType) {
+            String className = ((PsiClassReferenceType) psiFieldType).getClassName();
+//            PsiUtil.getTopLevelClass(psiFieldType);
+            if (className.equalsIgnoreCase("List") || className.equalsIgnoreCase("ArrayList")) {
+
+                PsiType[] parameters = ((PsiClassReferenceType) psiFieldType).getParameters();
+                if (parameters != null && parameters.length > 0) {
+                    PsiType parameter = parameters[0];
+//                    if(parameter.getPresentableText().equals(psiclass.getname))
+                }
+
+                return handleListParam(psiFieldType, project);
+            }
+
+            ((PsiClassReferenceType) psiFieldType).resolve().getFields(); // if is Enum
+
+            String fullName = psiFieldType.getCanonicalText();
+            PsiClass fieldClass = findOnePsiClassByClassName(fullName, project);
+
+            // 处理递归
+            if (fieldClass != null) {
+//                todo: 处理递归问题 autoCorrelationCount
+                if(autoCorrelationCount > 0) return new HashMap();
+                if(fullName.equals(fieldClass.getQualifiedName())){
+                    autoCorrelationCount ++;
+                }
+
+                return assembleClassToMap(fieldClass, project);
+            }
+        }
+
+        // 处理自关联 List<T> = T 两级，只处理一次, break
+
+        return typeName;
+    }
+
 
     @Nullable
     public PsiClass findOnePsiClassByClassName(String className, Project project) {
@@ -123,7 +176,7 @@ public class PsiClassHelper {
 
         if (psiClassCollection.size() > 1) {
             //找import中对应的class
-            psiClass = psiClassCollection.stream().filter(tempPsiClass -> tempPsiClass.getQualifiedName().equals(className)).findFirst().get();
+//            psiClass = psiClassCollection.stream().filter(tempPsiClass -> tempPsiClass.getQualifiedName().equals(className)).findFirst().get();
 
             Optional<PsiClass> any = psiClassCollection.stream().filter(tempPsiClass -> tempPsiClass.getQualifiedName().equals(className)).findAny();
 
@@ -164,91 +217,92 @@ public class PsiClassHelper {
     }
 
     public Map<String, Object> assembleClassToMap(PsiClass psiClass, Project project) {
+        int defaultRecursiveCount = 1;
+        return assembleClassToMap(psiClass, project, defaultRecursiveCount);
+    }
+
+    public Map<String, Object> assembleClassToMap(PsiClass psiClass, Project project,int recursiveCount) {
+
         Map<String, Object> map = new LinkedHashMap<>();
         PsiField[] fields = psiClass.getFields();
         for (PsiField field : fields) {
             PsiType psiFieldType = field.getType();
-            psiFieldType.getPresentableText();
+            String typeName = psiFieldType.getPresentableText();
 
-//   todo:         判断 list 递归
+            String fieldName = field.getName();
+
+//            common base type
+            if (isJavaBaseType(typeName)) {
+                map.put(fieldName, getJavaBaseTypeDefaultValue(typeName));
+                continue;
+            }
+//Enum
+            PsiClass resolveClass = ((PsiClassReferenceType) psiFieldType).resolve();
+            if (isEnum(psiFieldType)) {
+                PsiField psiField = resolveClass.getFields()[0];
+                map.put(fieldName, psiField.getName());
+                continue;
+            }
+
+//            self recursion
+            if (resolveClass.getQualifiedName().equals(psiClass.getQualifiedName())) {
+                if (recursiveCount > 0) {
+                    Map<String, Object> objectMap = assembleClassToMap(resolveClass, project,0);
+                    map.put(fieldName, objectMap);
+                    continue;
+                }
+            }
+
+/*            psiClass.getQualifiedName().equals()
+
+//            recursive
+            ((PsiClassReferenceType) psiFieldType)*/
+
+
             if (isListFieldType(psiFieldType)) {
                 PsiType[] parameters = ((PsiClassReferenceType) psiFieldType).getParameters();
                 if (parameters != null && parameters.length > 0) {
                     PsiType parameter = parameters[0];
-                    if (parameter.getPresentableText().equals(psiClass.getName())) {
+// 自关联
+                    if (recursiveCount <= 0 )  {
                         continue;
-                    } else {
-                        // TODO TODO TODO .................
-                        if (parameter instanceof PsiClassReferenceType) {
-//                            (PsiClassReferenceType) parameter
+                    }
+
+                    if (parameter.getPresentableText().equals(psiClass.getName())) {
+                        Map<String, Object> objectMap = assembleClassToMap(psiClass, project, 0);
+                        map.put(fieldName, objectMap);
+                    }
+
+                    // TODO TODO TODO .................
+                    if (parameter instanceof PsiClassReferenceType) {
+                        if (parameter.getPresentableText().contains("<")) {
+                            continue;
                         }
+                        PsiClass onePsiClassByClassName = findOnePsiClassByClassName(parameter.getCanonicalText(), project);
+
+                        Map<String, Object> objectMap = assembleClassToMap(onePsiClassByClassName, project, 0);
+                        map.put(fieldName, objectMap);
+                        continue;
+//                            (PsiClassReferenceType) parameter
                     }
                 }
             }
 
+/* /// hahahaha
             Object fieldValueObj = setFieldDefaultValue(psiFieldType, project);
-            map.put(field.getName(), fieldValueObj);
+
+            map.put(fieldName, fieldValueObj);*/
+
+//   todo:         判断 list 递归
+/*                if (isListFieldType(psiFieldType)) {
+
+                }*/
+
         }
 
         return map;
     }
 
-
-    private Object setFieldDefaultValue(PsiType psiFieldType, Project project) {
-
-        // 八种类型和包装类
-        String typeName = psiFieldType.getPresentableText();
-
-        switch (typeName.toLowerCase()) {
-            case "byte": return Byte.valueOf("1");
-            case "char": return Character.valueOf('Z');
-            case "character": return Character.valueOf('Z');
-            case "boolean": return Boolean.TRUE;
-            case "int": return Integer.valueOf(1);
-            case "integer": return Integer.valueOf(1);
-            case "double": return Double.valueOf(1);
-            case "float": return Float.valueOf(1.0F);
-            case "long": return Long.valueOf(1L);
-            case "short": return Short.valueOf("1");
-            case "string": return "demoData";
-            case "date": return DateFormatUtil.formatDateTime(new Date());
-//            default:
-        }
-
-
-        if (psiFieldType instanceof PsiClassReferenceType) {
-            String className = ((PsiClassReferenceType) psiFieldType).getClassName();
-//            PsiUtil.getTopLevelClass(psiFieldType);
-            if (className.equalsIgnoreCase("List") || className.equalsIgnoreCase("ArrayList")) {
-
-                PsiType[] parameters = ((PsiClassReferenceType) psiFieldType).getParameters();
-                if (parameters != null && parameters.length > 0) {
-                    PsiType parameter = parameters[0];
-//                    if(parameter.getPresentableText().equals(psiclass.getname))
-                }
-
-                return handleListParam(psiFieldType, project);
-            }
-
-            String fullName = psiFieldType.getCanonicalText();
-            PsiClass fieldClass = findOnePsiClassByClassName(fullName, project);
-
-            // 处理递归
-            if (fieldClass != null) {
-//                todo: 处理递归问题 autoCorrelationCount
-                if(autoCorrelationCount > 0) return new HashMap();
-                if(fullName.equals(fieldClass.getQualifiedName())){
-                    autoCorrelationCount ++;
-                }
-
-                return assembleClassToMap(fieldClass, project);
-            }
-        }
-
-        // 处理自关联 List<T> = T 两级，只处理一次, break
-
-        return typeName;
-    }
 
     /* 字段是否为List 类型*/
     private static boolean isListFieldType(PsiType psiFieldType) {
@@ -256,9 +310,38 @@ public class PsiClassHelper {
             return false;
         }
 
-        String className = ((PsiClassReferenceType) psiFieldType).getClassName();
-        return  className.equalsIgnoreCase("List") || className.equalsIgnoreCase("ArrayList") ;
+        PsiClass resolvePsiClass = ((PsiClassReferenceType) psiFieldType).resolve();
+        if (resolvePsiClass.getQualifiedName().equals("java.util.List")) {
+            return true ;
+        }
+
+        /*if (resolvePsiClass.getSuperClass().getQualifiedName().equals("java.util.List")) {
+            return true ;
+        }*/
+
+        for (PsiType psiType : ((PsiClassReferenceType) psiFieldType).rawType().getSuperTypes()) {
+            if (psiType.getCanonicalText().equals("java.util.List")) {
+                return true;
+            }
+        }
+
+        return false;
+
+/*        ((PsiClassReferenceType) psiFieldType).rawType().getCanonicalText().equals("java.util.List");
+
+        resolvePsiClass.getInterfaces();*/
+
+//        rawType().getSuperTypes()/*
     }
+
+    /* 字段是否为List 类型*/
+    private static boolean isEnum(PsiType psiFieldType) {
+        if (! (psiFieldType instanceof PsiClassReferenceType)) {
+            return false;
+        }
+        return ((PsiClassReferenceType) psiFieldType).resolve().isEnum();
+    }
+
 
     private Object handleListParam(PsiType psiType, Project project) {
         List<Object> list = new ArrayList();

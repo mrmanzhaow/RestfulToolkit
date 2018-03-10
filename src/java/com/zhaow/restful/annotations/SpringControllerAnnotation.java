@@ -1,8 +1,7 @@
 package com.zhaow.restful.annotations;
 
 
-
-public enum SpringControllerAnnotation {
+public enum SpringControllerAnnotation implements PathMappingAnnotation {
 
     CONTROLLER("Controller", "org.springframework.stereotype.Controller"),
     REST_CONTROLLER("RestController", "org.springframework.web.bind.annotation.RestController");
@@ -22,5 +21,18 @@ public enum SpringControllerAnnotation {
     public String getShortName() {
         return shortName;
     }
+
+/*
+    @Override
+    public List<PathMappingAnnotation> getPathMappings() {
+        return allPathMappingAnnotations;
+    }
+*/
+
+/*    static {
+        for (SpringControllerAnnotation springControllerAnnotation : SpringControllerAnnotation.values()) {
+            allPathMappingAnnotations.add(springControllerAnnotation);
+        }
+    }*/
 
 }

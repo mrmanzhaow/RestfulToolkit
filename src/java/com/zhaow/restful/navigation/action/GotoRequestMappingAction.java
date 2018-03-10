@@ -62,7 +62,6 @@ public class GotoRequestMappingAction extends GotoActionBase implements DumbAwar
             }
         };
 
-
 //        this.showNavigationPopup(e, model, callback, false);
         GotoRequestMappingProvider provider = new GotoRequestMappingProvider(getPsiContext(e));
         showNavigationPopup(e, model, callback, "Request Mapping Url matching pattern", true, true, provider);
@@ -91,7 +90,7 @@ public class GotoRequestMappingAction extends GotoActionBase implements DumbAwar
                         start.second), allowMultipleSelection);
     }
 
-
+/*
     private class GotoRequestMappingCallback extends GotoActionCallback{
 //        定位选择文件
         @Override
@@ -103,7 +102,7 @@ public class GotoRequestMappingAction extends GotoActionBase implements DumbAwar
                 }
             }
         }
-    }
+    }*/
 
     protected static class GotoRequestMappingFilter extends ChooseByNameFilter<HttpMethod> {
         GotoRequestMappingFilter(final ChooseByNamePopup popup, GotoRequestMappingModel model, final Project project) {

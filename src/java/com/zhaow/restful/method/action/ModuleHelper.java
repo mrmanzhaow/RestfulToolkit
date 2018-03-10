@@ -43,19 +43,18 @@ public class ModuleHelper {
         String params = PsiMethodHelper.create(psiMethod).buildParamString();
 
         // RequestMapping 注解设置了 param
-        StringBuilder urlBuilder = new StringBuilder(fullUrl);
-
         if (!params.isEmpty()) {
-            urlBuilder.append(fullUrl.contains("?") ? "&": "?").append(params);
+            StringBuilder urlBuilder = new StringBuilder(fullUrl);
+            return urlBuilder.append(fullUrl.contains("?") ? "&": "?").append(params).toString();
         }
-        return  urlBuilder.toString();
+        return  fullUrl;
     }
 
     @NotNull
     public String buildFullUrl(PsiMethod psiMethod) {
         StringBuilder host = getServiceHostPrefix();
 
-        String servicePath = PsiMethodHelper.buildServicePath(psiMethod);
+        String servicePath = PsiMethodHelper.buildServiceUriPath(psiMethod);
 
         return host.append(servicePath).toString();
     }
@@ -68,6 +67,5 @@ public class ModuleHelper {
         String contextPath = propertiesHandler.getContextPath();
         return new StringBuilder(SCHEME).append(HOST).append(":").append(port).append(contextPath);
     }
-
 
 }

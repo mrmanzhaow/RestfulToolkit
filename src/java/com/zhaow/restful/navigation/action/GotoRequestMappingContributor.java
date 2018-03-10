@@ -6,6 +6,8 @@ import com.intellij.navigation.NavigationItem;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.zhaow.restful.common.ServiceHelper;
+import com.zhaow.restful.common.resolver.ServiceResolver;
+import com.zhaow.restful.common.resolver.SpringResolver;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -16,13 +18,9 @@ public class GotoRequestMappingContributor implements ChooseByNameContributor {
 
     private List<RestServiceItem> navItem;
 
-    public GotoRequestMappingContributor() {
-    }
     public GotoRequestMappingContributor(Module myModule) {
         this.myModule = myModule;
     }
-
-
 
     //Returns the list of names for the specified project to which it is possible to navigate by name. 所有该类型的文件列表
     @NotNull
@@ -32,9 +30,9 @@ public class GotoRequestMappingContributor implements ChooseByNameContributor {
         List<RestServiceItem> itemList;
         ///todo 查找 project 中所有符合 rest url 类型文件，包含 request 接口
         if (onlyThisModuleChecked && myModule != null) {
-            itemList = findAllRestServiceItemList(myModule);
+            itemList = ServiceHelper.buildRestServiceItemListUsingResolver(myModule);
         } else {
-            itemList = findAllRestServiceItemList(project);
+            itemList = ServiceHelper.buildRestServiceItemListUsingResolver(project);
         }
 
         navItem = itemList;
@@ -48,11 +46,11 @@ public class GotoRequestMappingContributor implements ChooseByNameContributor {
 
         return names;
     }
+/*
 
     private List<RestServiceItem> findAllRestServiceItemList(Module myModule) {
-        List<RestServiceItem> itemList = ServiceHelper.buildRestServiceItemList(myModule);
-
-        return itemList;
+//        List<RestServiceItem> itemList = ServiceHelper.buildRestServiceItemList(myModule);
+        return ServiceHelper.buildRestServiceItemListUsingResolver(myModule);
     }
 
     private List<RestServiceItem> findAllRestServiceItemList(Project project) {
@@ -61,6 +59,7 @@ public class GotoRequestMappingContributor implements ChooseByNameContributor {
 
         return itemList;
     }
+*/
 
     //Returns the list of navigation items matching the specified name. 匹配，对比
     @NotNull

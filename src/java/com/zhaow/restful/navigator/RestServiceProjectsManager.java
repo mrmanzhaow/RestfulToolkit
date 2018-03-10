@@ -64,17 +64,18 @@ public class RestServiceProjectsManager extends AbstractProjectComponent
   }
 
   public List<RestServiceProject> getServiceProjects() {
-    List<RestServiceProject> list = DumbService.getInstance(myProject).runReadActionInSmartMode(() -> ServiceHelper.buildRestServiceProjectList(myProject));
+//    List<RestServiceProject> list = DumbService.getInstance(myProject).runReadActionInSmartMode(() -> ServiceHelper.buildRestServiceProjectList(myProject));
+    List<RestServiceProject> list = DumbService.getInstance(myProject).runReadActionInSmartMode(() -> ServiceHelper.buildRestServiceProjectListUsingResolver(myProject));
     return list;
   }
-
+/*
   public boolean hasProjects() {
     if (! myProject.isInitialized()) {
       return false;
     }
     System.out.println("======hasProjects=====");
     return getServiceProjects().size() > 0;
-  }
+  }*/
 
   public void forceUpdateAllProjects() {
 

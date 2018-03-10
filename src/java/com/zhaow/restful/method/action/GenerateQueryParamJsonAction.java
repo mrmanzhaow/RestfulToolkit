@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * 生成Request Body JSON 字符串
  */
-public class GenerateQueryParamJsonAction extends RestfulMethodBaseAction {
+public class GenerateQueryParamJsonAction extends RestfulMethodSpringSupportedAction {
 
     @Override
     public void actionPerformed(AnActionEvent e) {

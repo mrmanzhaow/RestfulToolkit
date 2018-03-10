@@ -1,10 +1,10 @@
 package com.zhaow.restful.method;
 
-public class RequestMapping {
+public class RequestPath {
     String path;
     String method;
 
-    public RequestMapping(String path, String method) {
+    public RequestPath(String path, String method) {
         this.path = path;
         this.method = method;
     }

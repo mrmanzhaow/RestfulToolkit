@@ -10,6 +10,7 @@ import com.intellij.ui.treeStructure.*;
 import com.intellij.util.OpenSourceUtil;
 import com.zhaow.restful.common.PsiMethodHelper;
 import com.zhaow.restful.common.ToolkitIcons;
+import com.zhaow.restful.method.HttpMethod;
 import com.zhaow.restful.navigation.action.RestServiceItem;
 import gnu.trove.THashMap;
 import org.apache.commons.lang.StringUtils;
@@ -215,6 +216,13 @@ public class RestServiceStructure  extends SimpleTreeStructure {
             return serviceCount > 0 ? String.format(s,serviceCount) : null;
         }
 
+        @Override
+        public void handleSelection(SimpleTree tree) {
+//            System.out.println("ProjectNode handleSelection");
+            resetRestServiceDetail();
+
+        }
+
         public void updateProjectNodes(List<RestServiceProject> projects) {
 //            cleanUpCache();
             projectNodes.clear();
@@ -296,14 +304,15 @@ public class RestServiceStructure  extends SimpleTreeStructure {
             return "Toolkit.ReimportServices";
         }*/
 
-       /* @Override
+        @Override
         public void handleSelection(SimpleTree tree) {
-            System.out.println("ProjectNode handleSelection");
+//            System.out.println("ProjectNode handleSelection");
+            resetRestServiceDetail();
         }
         @Override
         public void handleDoubleClickOrEnter(SimpleTree tree, InputEvent inputEvent) {
-            System.out.println("ProjectNode handleDoubleClickOrEnter");
-        }*/
+//            System.out.println("ProjectNode handleDoubleClickOrEnter");
+        }
     }
 
     public class ServiceNode extends BaseSimpleNode {
@@ -327,7 +336,6 @@ public class RestServiceStructure  extends SimpleTreeStructure {
 
         @Override
         public String getName() {
-
             String name = myServiceItem.getName();
 /*            if (ToolkitIcons.METHOD.get(myServiceItem.getMethod()) == null && myServiceItem.getMethod() != null) {
                 name += " [" + myServiceItem.getMethod() + "]";
@@ -339,8 +347,6 @@ public class RestServiceStructure  extends SimpleTreeStructure {
         public void handleSelection(SimpleTree tree) {
             ServiceNode selectedNode = (ServiceNode) tree.getSelectedNode();
             showServiceDetail(selectedNode.myServiceItem);
-
-//            System.out.println("ServiceNode handleSelection");
         }
 
         /**
@@ -350,7 +356,7 @@ public class RestServiceStructure  extends SimpleTreeStructure {
 
             myRestServiceDetail.resetRequestTabbedPane();
 
-            String method = serviceItem.getMethod()!=null? String.valueOf(serviceItem.getMethod()) : "GET";
+            String method = serviceItem.getMethod()!=null? String.valueOf(serviceItem.getMethod()) : HttpMethod.GET.name();
             myRestServiceDetail.setMethodValue(method);
             myRestServiceDetail.setUrlValue(serviceItem.getFullUrl());
 
@@ -369,9 +375,6 @@ public class RestServiceStructure  extends SimpleTreeStructure {
 
         @Override
         public void handleDoubleClickOrEnter(SimpleTree tree, InputEvent inputEvent) {
-//            System.out.println("ServiceNode handleDoubleClickOrEnter");
-
-
             ServiceNode selectedNode = (ServiceNode) tree.getSelectedNode();
 
             RestServiceItem myServiceItem = selectedNode.myServiceItem;
@@ -379,7 +382,6 @@ public class RestServiceStructure  extends SimpleTreeStructure {
             if (!psiMethod.isValid()) {
                 LOG.info("psiMethod is invalid: ");
                 LOG.info(psiMethod.toString());
-
 //                PsiDocumentManager.getInstance(psiMethod.getProject()).commitAllDocuments();
 // try refresh service
                 RestServicesNavigator.getInstance(myServiceItem.getModule().getProject()).scheduleStructureUpdate();
@@ -402,6 +404,14 @@ public class RestServiceStructure  extends SimpleTreeStructure {
             return "Toolkit.Navigator";
         }*/
 
+    }
+
+    private void resetRestServiceDetail() {
+        myRestServiceDetail.resetRequestTabbedPane();
+        myRestServiceDetail.setMethodValue(HttpMethod.GET.name());
+        myRestServiceDetail.setUrlValue("URL");
+
+        myRestServiceDetail.initTab();
     }
 
 }
