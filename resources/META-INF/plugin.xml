@@ -1,0 +1,174 @@
+<idea-plugin url="https://plugins.jetbrains.com/plugin/10292-restfultoolkit" allow-bundled-update="true">
+  <id>com.zhaow.restful.toolkit</id>
+  <name>RestfulToolkit</name>
+  <version>1.0.9</version>
+  <vendor email="mrmanzhaow@163.com" url="">zhaow</vendor>
+
+  <description><![CDATA[
+      1.Navigate to service location ( request mapping ).(use: Ctrl \ or Ctrl Alt N ) <br>
+      2.Show rest service structure.<br>
+      3.Add some useful functions like ,"Generate&amp;Copy Query Param","Generate&amp;Copy URL" to request method.<br>
+      4.Other useful functions,like add "Convert to JSON" to java class.<br>
+      <br>
+      <em>Only support spring framework (Spring MVC / Spring Boot)</em>
+      <br>
+      --------------------------------------------------
+      <br>
+      1.根据 URL 直接导航到对应的方法, ( Ctrl \ or Ctrl Alt N );<br>
+      2.提供了一个 Services tree 的显示窗口;<br>
+      3.在 Controller 方法上添加了 "复制生成 URL","复制方法参数","复制生成 JSON" (方法参数中存在 RequestBody 注解) 等几个功能;<br>
+      4.其他一些个人觉得有用的小功能，比如在 java 类上添加 "Convert to JSON" 功能。<br>
+      <br>
+      <em>目前只支持 spring 体系 (Spring MVC / Spring Boot)</em>
+    ]]></description>
+
+  <change-notes><![CDATA[
+       <li>1.0.9 Service url navigation: matched restful style request mappings (e.g:"/product/{productId}");<br>
+        </li>
+       <li>1.0.8 bug fix </li>
+       <li>1.0.7 match more mapping patterns; (识别更多映射)<br>
+                 replace icons;<br>
+                 add "Convert to JSON (Compressed)" function to java class;
+        </li>
+       <li>1.0.6 Compatible with IDEA 2016 (兼容 IDEA 2016) </li>
+       <li>1.0.5 修复发送请求IDE卡死的问题. </li>
+       <li>1.0.4 format date type (格式化 Date 类型) </li>
+       <li>1.0.3 small cleanup some code. </li>
+    ]]>
+  </change-notes>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+  <idea-version since-build="145.0"/>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+       on how to target different products -->
+  <!-- uncomment to enable plugin in all products
+  <depends>com.intellij.modules.lang</depends>
+  -->
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.properties</depends>
+    <depends>org.jetbrains.plugins.yaml</depends>
+
+    <project-components>
+        <component>
+            <implementation-class>com.zhaow.restful.navigator.RestServicesNavigator</implementation-class>
+        </component>
+        <component>
+            <implementation-class>com.zhaow.restful.navigator.RestServiceProjectsManager</implementation-class>
+        </component>
+<!--        <component>
+            <implementation-class>com.zhaow.restful.navigation.action.GotoRequestMappingConfiguration</implementation-class>
+        </component>-->
+        <component>
+            <implementation-class>com.zhaow.restful.navigator.RestServiceDetail</implementation-class>
+        </component>
+    </project-components>
+
+
+  <extensions defaultExtensionNs="com.intellij">
+      <projectService serviceImplementation="com.zhaow.restful.navigation.action.GotoRequestMappingConfiguration"/>
+    <!-- Add your extensions here -->
+      <productivityFeaturesProvider  implementation="com.zhaow.restful.statistics.RestfulToolkitFeaturesProvider" />
+      <tipAndTrick feature-id="navigation.popup.service" file="GotoService.html"/>
+  </extensions>
+
+    <application-components>
+        <!-- Add your application components here -->
+    </application-components>
+
+
+  <actions>
+      <action id="Popup.PopupChoiceAction"
+              class="com.zhaow.restful.popup.action.PopupChoiceAction"
+              text="Popup Restful Toolkit ..."
+              description="Popup Restful Toolkit ...">
+          <add-to-group group-id="EditMenu" anchor="last"/>
+          <keyboard-shortcut keymap="$default" first-keystroke="alt shift R"/>
+      </action>
+
+      <!--在controller method 中添加 RestfulToolkit 弹出操作，generate rest url、generate rest url with Possibly params （添加可能的参数，解析实体，@RequestBody）、gen json、
+      gen key value for postman(postman 参数bulk edit)、 gen key value for apiview submit -->
+      <!--rest 方法中添加-->
+      <group id="RestfulToolkitGroup" text="RestfulToolkit" description="Restful Toolkit actions for rest method group"
+            >
+          <!--<add-to-group group-id="EditorPopupMenu" anchor="first"/>-->
+          <action class="com.zhaow.restful.method.action.GenerateFullUrlAction" id="GenerateFullRestUrl" text="Generate &amp;&amp; Copy Full URL">
+              <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+          </action>
+          <action class="com.zhaow.restful.method.action.GenerateUrlAction" id="GenerateRestUrl" text="Generate &amp;&amp; Copy Relation URL">
+              <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+          </action>
+          <action class="com.zhaow.restful.method.action.GenerateQueryParamJsonAction" id="GenerateRequestBodyJson" text="Generate &amp;&amp; Copy RequestBody (JSON)">
+              <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+          </action>
+          <action class="com.zhaow.restful.method.action.GenerateQueryParamAction" id="BuildQueryParam" text="Generate &amp;&amp; Copy Query Param (Key Value)">
+              <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+          </action>
+
+      </group>
+
+
+      <group id="RestfulToolkit.RestMethod.EditorPopupMenu" text="Restful Toolkit"
+             description="Restful Toolkit"
+             popup="false">
+          <!--<add-to-group group-id="EditorPopupMenu" anchor="last" relative-to-action="EditorToggleColumnMode"/>-->
+          <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+          <!--<reference ref="GenerateRestUrl"/>-->
+      </group>
+
+
+      <!--实体中添加 gen json、
+      gen key value for postman( postman 参数 bulk edit )-->
+
+
+      <!--跳转导航： 根据rest url 导航 参考 request mapper  ( Enter mapping url ) 快捷键用 ctl alt n -->
+
+      <!-- show services -->
+      <action id="ConvertClassToJSONAction" class="com.zhaow.restful.action.ConvertClassToJSONAction" text="Convert to JSON" description="Convert to JSON">
+          <add-to-group group-id="EditorPopupMenu" anchor="first" />
+      </action>
+      <action id="ConvertClassToJSONCompressedAction" class="com.zhaow.restful.action.ConvertClassToJSONCompressedAction" text="Convert to JSON (Compressed)" description="Convert to JSON (Compressed)">
+          <add-to-group group-id="EditorPopupMenu" anchor="first" />
+      </action>
+      
+      <!-- url 导航 -->
+      <action id="Toolkit.GotoService" class="com.zhaow.restful.navigation.action.GotoRequestMappingAction"
+               text="_Service" description="Go to Service"
+                icon="AllIcons.Actions.Search">
+          <add-to-group group-id="GoToTargetEx" anchor="first"/>
+          <keyboard-shortcut keymap="$default" first-keystroke="ctrl BACK_SLASH" />
+          <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt N"/>
+      </action>
+
+      <!--code gen-->
+<!--
+      <action class="com.zhaow.restful.codegen.SpringBootGenerator" id="CodeGen"
+              text="SpringBoot Generator"
+              description="SpringBoot Generator">
+          <add-to-group group-id="GenerateGroup" anchor="first"/>
+      </action>
+-->
+
+      <!--刷新-->
+      <action id="Toolkit.RefreshServices" class="com.zhaow.restful.navigator.RefreshProjectAction"
+              text="Refresh Services in Project"
+              icon="AllIcons.Actions.Refresh">
+      </action>
+
+      <group id="Toolkit.NavigatorActionsToolbar">
+          <reference id="Toolkit.RefreshServices"/>
+          <separator/>
+          <reference id="Toolkit.GotoService"/>
+          <separator/>
+      </group>
+
+      <!--      <action id="SpringBootAppRunnerAction" class="com.zhaow.restful.runner.SpringBootAppRunnerAction" text="SpringBootAppRunnerAction"
+                    description="SpringBootAppRunnerAction">
+                &lt;!&ndash;<add-to-group group-id="RunnerActions" anchor="after" relative-to-action=""/>&ndash;&gt;
+                <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewDir"/>
+            </action>
+            -->
+
+  </actions>
+
+</idea-plugin>

@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="properties">
+    <CLASSES>
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/properties/lib/properties.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/yaml/lib/yaml.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
