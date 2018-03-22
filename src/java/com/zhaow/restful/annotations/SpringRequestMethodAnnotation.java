@@ -39,4 +39,12 @@ public enum SpringRequestMethodAnnotation {
        return null;
     }
 
+    public static SpringRequestMethodAnnotation getByShortName(String requestMapping) {
+        for (SpringRequestMethodAnnotation springRequestAnnotation : SpringRequestMethodAnnotation.values()) {
+            if (springRequestAnnotation.getQualifiedName().endsWith(requestMapping)) {
+                return springRequestAnnotation;
+            }
+        }
+        return null;
+    }
 }

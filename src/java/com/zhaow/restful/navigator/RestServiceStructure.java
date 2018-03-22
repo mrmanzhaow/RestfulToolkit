@@ -2,12 +2,16 @@ package com.zhaow.restful.navigator;
 
 
 import com.intellij.icons.AllIcons;
+import com.intellij.lang.java.JavaLanguage;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
+import com.intellij.pom.Navigatable;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiMethod;
 import com.intellij.ui.treeStructure.*;
 import com.intellij.util.OpenSourceUtil;
+import com.zhaow.restful.common.KtFunctionHelper;
 import com.zhaow.restful.common.PsiMethodHelper;
 import com.zhaow.restful.common.ToolkitIcons;
 import com.zhaow.restful.method.HttpMethod;
@@ -16,6 +20,8 @@ import gnu.trove.THashMap;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.idea.KotlinLanguage;
+import org.jetbrains.kotlin.psi.KtNamedFunction;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeModel;
@@ -360,14 +366,27 @@ public class RestServiceStructure  extends SimpleTreeStructure {
             myRestServiceDetail.setMethodValue(method);
             myRestServiceDetail.setUrlValue(serviceItem.getFullUrl());
 
-            PsiMethodHelper psiMethodHelper = PsiMethodHelper.create(serviceItem.getPsiMethod()).withModule(serviceItem.getModule());
+            String requestParams = "";
+            String requestBodyJson = "";
+            PsiElement psiElement = serviceItem.getPsiElement();
+            if (psiElement.getLanguage()== JavaLanguage.INSTANCE) {
+                PsiMethodHelper psiMethodHelper = PsiMethodHelper.create(serviceItem.getPsiMethod()).withModule(serviceItem.getModule());
+                requestParams = psiMethodHelper.buildParamString();
+                requestBodyJson = psiMethodHelper.buildRequestBodyJson();
 
-            String requestParams = psiMethodHelper.buildParamString();
-//            if (StringUtils.isNotBlank(requestParams)) {
-                myRestServiceDetail.addRequestParamsTab(requestParams);
-//            }
+            }else if(psiElement.getLanguage()== KotlinLanguage.INSTANCE){
+                if (psiElement instanceof KtNamedFunction) {
+                    KtNamedFunction ktNamedFunction = (KtNamedFunction) psiElement;
+                    KtFunctionHelper ktFunctionHelper = KtFunctionHelper.create(ktNamedFunction).withModule(serviceItem.getModule());
+                    requestParams = ktFunctionHelper.buildParamString();
+                    requestBodyJson =ktFunctionHelper.buildRequestBodyJson();
+                }
 
-            String requestBodyJson = psiMethodHelper.buildRequestBodyJson();
+            }
+
+            myRestServiceDetail.addRequestParamsTab(requestParams);
+
+
             if (StringUtils.isNotBlank(requestBodyJson)) {
                 myRestServiceDetail.addRequestBodyTabPanel(requestBodyJson);
             }
@@ -378,15 +397,26 @@ public class RestServiceStructure  extends SimpleTreeStructure {
             ServiceNode selectedNode = (ServiceNode) tree.getSelectedNode();
 
             RestServiceItem myServiceItem = selectedNode.myServiceItem;
-            PsiMethod psiMethod = myServiceItem.getPsiMethod();
-            if (!psiMethod.isValid()) {
+            PsiElement psiElement = myServiceItem.getPsiElement();
+
+            if (!psiElement.isValid()) {
+                // PsiDocumentManager.getInstance(psiMethod.getProject()).commitAllDocuments();
+                // try refresh service
                 LOG.info("psiMethod is invalid: ");
-                LOG.info(psiMethod.toString());
-//                PsiDocumentManager.getInstance(psiMethod.getProject()).commitAllDocuments();
-// try refresh service
+                LOG.info(psiElement.toString());
                 RestServicesNavigator.getInstance(myServiceItem.getModule().getProject()).scheduleStructureUpdate();
             }
-            OpenSourceUtil.navigate(psiMethod);
+
+            if (psiElement.getLanguage()== JavaLanguage.INSTANCE) {
+                PsiMethod psiMethod = myServiceItem.getPsiMethod();
+                OpenSourceUtil.navigate(psiMethod);
+
+            }else if(psiElement.getLanguage()== KotlinLanguage.INSTANCE){
+                if (psiElement instanceof KtNamedFunction) {
+                    KtNamedFunction ktNamedFunction = (KtNamedFunction) psiElement;
+                    OpenSourceUtil.navigate(ktNamedFunction);
+                }
+            }
         }
 
         @Override

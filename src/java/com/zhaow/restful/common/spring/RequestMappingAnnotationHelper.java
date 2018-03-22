@@ -16,6 +16,32 @@ import java.util.stream.Collectors;
 
 public class RequestMappingAnnotationHelper implements RestSupportedAnnotationHelper {
 
+
+    /**
+     * 过滤所有注解
+     * @param psiClass
+     * @return
+     */
+    public static RequestPath[] getRequestPaths(PsiClass psiClass) {
+        PsiAnnotation[] annotations = psiClass.getModifierList().getAnnotations();
+        if(annotations == null) return null;
+        List<RequestPath> list = new ArrayList<>();
+
+        for (PsiAnnotation annotation : annotations) {
+            for (SpringRequestMethodAnnotation mappingAnnotation : SpringRequestMethodAnnotation.values()) {
+//            for (PathMappingAnnotation mappingAnnotation : PathMappingAnnotation.allPathMappingAnnotations) {
+                if (annotation.getQualifiedName().equals(mappingAnnotation.getQualifiedName())) {
+                    List<RequestPath> requestMappings = getRequestMappings(annotation, "");
+                    if (requestMappings.size()>0) {
+                        list.addAll(requestMappings);
+                    }
+                }
+            }
+        }
+
+        return list.toArray(new RequestPath[list.size()]);
+    }
+
     public static String[] getRequestMappingValues(PsiClass psiClass) {
         PsiAnnotation[] annotations = psiClass.getModifierList().getAnnotations();
         if(annotations == null) return null;
@@ -90,6 +116,7 @@ public class RequestMappingAnnotationHelper implements RestSupportedAnnotationHe
      */
     public static RequestPath[] getRequestPaths(PsiMethod psiMethod) {
         PsiAnnotation[] annotations = psiMethod.getModifierList().getAnnotations();
+
         if(annotations == null) return null;
         List<RequestPath> list = new ArrayList<>();
 
@@ -109,7 +136,7 @@ public class RequestMappingAnnotationHelper implements RestSupportedAnnotationHe
     }
 
 
-    public static String getRequestMappingValue(PsiAnnotation annotation) {
+    private static String getRequestMappingValue(PsiAnnotation annotation) {
         String value = PsiAnnotationHelper.getAnnotationAttributeValue(annotation, "value");
 
 //        String value = psiAnnotationMemberValue.getText().replace("\"","");

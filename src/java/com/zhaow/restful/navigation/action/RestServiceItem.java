@@ -11,6 +11,8 @@ import com.zhaow.restful.common.ToolkitIcons;
 import com.zhaow.restful.method.HttpMethod;
 import com.zhaow.restful.method.action.ModuleHelper;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.kotlin.psi.KtClass;
+import org.jetbrains.kotlin.psi.KtNamedFunction;
 
 import javax.swing.*;
 
@@ -24,15 +26,15 @@ public class RestServiceItem implements NavigationItem {
     private HttpMethod method;  //请求方法 get/post...
 
     private String url; //url mapping;
-
+/*
     private String methodName; //方法名称
 
     private String hostContextPath; // todo 处理 http://
     private PsiClass psiClass;
-    private boolean foundRequestBody;
+    private boolean foundRequestBody;*/
 
     private Navigatable navigationElement;
-
+    //        ((KtClass) ((KtClassBody) psiElement.getParent()).getParent()).getModifierList().getAnnotationEntries().get(0).getText()
     public RestServiceItem(PsiElement psiElement, String requestMethod, String urlPath) {
         this.psiElement = psiElement;
         if (psiElement instanceof PsiMethod) {
@@ -106,10 +108,12 @@ public class RestServiceItem implements NavigationItem {
             String location = null;
 
             if (psiElement instanceof PsiMethod) {
-                PsiMethod psiMethod = ((PsiMethod) psiElement);
-                StringBuilder sb = new StringBuilder();
-                sb.append(psiMethod.getContainingClass().getName()).append("#").append(psiMethod.getName());
-                location = sb.toString();
+                PsiMethod psiMethod = ((PsiMethod) psiElement);;
+                location = psiMethod.getContainingClass().getName().concat("#").concat(psiMethod.getName());
+            } else if (psiElement instanceof KtNamedFunction) {
+                KtNamedFunction ktNamedFunction = (KtNamedFunction) RestServiceItem.this.psiElement;
+                String className = ((KtClass) psiElement.getParent().getParent()).getName();
+                location = className.concat("#").concat(ktNamedFunction.getName());
             }
 
             return "(" + location + ")";
@@ -163,17 +167,17 @@ public class RestServiceItem implements NavigationItem {
         return moduleHelper.getServiceHostPrefix() + getUrl();
     }
 
-    public String getFullUrlWithParams() {
+/*    public String getFullUrlWithParams() {
         ModuleHelper moduleHelper = ModuleHelper.create(module);
         String urlWithParams = moduleHelper.buildFullUrlWithParams(psiMethod);
         return urlWithParams;
-    }
+    }*/
 
     public void  setModule(Module module) {
         this.module = module;
     }
 
-    public String getHostContextPath() {
+/*    public String getHostContextPath() {
         return hostContextPath;
     }
 
@@ -183,5 +187,9 @@ public class RestServiceItem implements NavigationItem {
 
     public void setFoundRequestBody(boolean foundRequestBody) {
         this.foundRequestBody = foundRequestBody;
+    }*/
+
+    public PsiElement getPsiElement() {
+        return psiElement;
     }
 }

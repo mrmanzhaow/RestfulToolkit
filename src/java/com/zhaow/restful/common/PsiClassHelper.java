@@ -4,13 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiClassType;
-import com.intellij.psi.PsiField;
-import com.intellij.psi.PsiType;
+import com.intellij.psi.*;
 import com.intellij.psi.impl.java.stubs.index.JavaShortClassNameIndex;
 import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.search.PsiShortNamesCache;
 import com.intellij.util.text.DateFormatUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,6 +25,10 @@ public class PsiClassHelper {
 
     protected PsiClassHelper(@NotNull PsiClass psiClass) {
         this.psiClass = psiClass;
+    }
+
+    public static PsiClassHelper create(@NotNull PsiClass psiClass) {
+        return new PsiClassHelper(psiClass);
     }
 
     @NotNull
@@ -162,6 +164,12 @@ public class PsiClassHelper {
 
     @Nullable
     public PsiClass findOnePsiClassByClassName(String className, Project project) {
+//        return findOnePsiClassByClassName_deprecated(className, project);
+        return findOnePsiClassByClassName2(className, project);
+    }
+
+    @Nullable
+    protected PsiClass findOnePsiClassByClassName_deprecated(String className, Project project) {
         PsiClass psiClass = null;
 
         String shortClassName = className.substring(className.lastIndexOf(".") + 1, className.length());
@@ -202,9 +210,70 @@ public class PsiClassHelper {
         return psiClassCollection;
     }
 
-    public static PsiClassHelper create(@NotNull PsiClass psiClass) {
-        return new PsiClassHelper(psiClass);
+
+    @Nullable
+    public PsiClass findOnePsiClassByClassName2(String className, Project project) {
+        PsiClass psiClass = null;
+
+        String shortClassName = className.substring(className.lastIndexOf(".") + 1, className.length());
+
+//        psiClass.getPrimaryConstructor().getText(); // (val id: Long, val content: String)
+//        psiClass.getFqName(); // class fullQualifiedName :org.jetbrains.kotlin.demo.Greeting
+
+        PsiClass[] psiClasses = tryDetectPsiClassByShortClassName2( shortClassName,project);
+        if (psiClasses.length == 0) {
+
+            return null;
+        }
+        if (psiClasses.length == 1) {
+            psiClass = psiClasses[0];
+            return psiClass;
+        }
+
+        if (psiClasses.length > 1) {
+            Optional<PsiClass> any = Arrays.stream(psiClasses).filter(tempPsiClass -> tempPsiClass.getQualifiedName().equals(className)).findAny();
+            if (any.isPresent()) {
+                psiClass = any.get();
+            }
+
+            for (PsiClass aClass : psiClasses) {
+
+            }
+
+
+            //找import中对应的class
+//            psiClass = psiClassCollection.stream().filter(tempKtClass -> tempPsiClass.getQualifiedName().equals(className)).findFirst().get();
+
+            /*Optional<PsiClass> any = psiClassCollection.stream().filter(tempPsiClass -> tempPsiClass.getQualifiedName().equals(className)).findAny();
+
+            if (any.isPresent()) {
+                psiClass = any.get();
+            }*/
+
+           /* for (KtClassOrObject ktClassOrObject : ktClassOrObjects) {
+//                ktClassOrObject.
+            }*/
+
+        }
+        return psiClass;
     }
+    public PsiClass[] tryDetectPsiClassByShortClassName2(String shortClassName,Project project) {
+        PsiClass[] psiClasses = PsiShortNamesCache.getInstance(project).getClassesByName(shortClassName, GlobalSearchScope.allScope(project));// 所有的
+
+        if (psiClasses != null && psiClasses.length > 0) {
+            return psiClasses;
+        }
+
+        if(myModule != null) {
+            psiClasses = PsiShortNamesCache.getInstance(project).getClassesByName(shortClassName, GlobalSearchScope.allScope(project));// 所有的
+            if (psiClasses != null && psiClasses.length > 0) {
+                return psiClasses;
+            }
+        }
+
+        return new PsiClass[0];
+    }
+
 
     public Map<String, Object> assembleClassToMap(String className, Project project) {
         PsiClass psiClass = findOnePsiClassByClassName(className, project);

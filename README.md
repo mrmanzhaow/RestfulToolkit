@@ -11,8 +11,8 @@
 *( *Windows*: `Ctrl + Enter`; *Mac*: `Command + Enter` ) .
 
  #### supported Spring framework (Spring MVC / Spring Boot) 
- #### supported JAX-RS (dubbo 2.6+, dubbox, )
- 
+ #### supported JAX-RS )
+ #### supported Kotlin language
 ------
 ### 一套 Restful 服务开发辅助工具集。
 
@@ -24,5 +24,6 @@
 
  #### 支持 Spring 体系 (Spring MVC / Spring Boot) 
  #### 支持 JAX-RS 
+ #### 支持 Kotlin 语言语法
  ------------
  

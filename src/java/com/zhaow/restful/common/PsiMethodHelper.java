@@ -9,6 +9,7 @@ import com.zhaow.restful.annotations.SpringControllerAnnotation;
 import com.zhaow.restful.common.jaxrs.JaxrsAnnotationHelper;
 import com.zhaow.restful.method.Parameter;
 import com.zhaow.restful.common.spring.RequestMappingAnnotationHelper;
+import com.zhaow.restful.method.action.ModuleHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,7 +36,7 @@ public class PsiMethodHelper {
         return this;
     }
 
-    protected PsiMethodHelper(@NotNull PsiMethod psiMethod) {
+    protected PsiMethodHelper(PsiMethod psiMethod) {
         this.psiMethod = psiMethod;
     }
 
@@ -91,6 +92,7 @@ public class PsiMethodHelper {
 
             PsiClassHelper psiClassHelper = PsiClassHelper.create(psiMethod.getContainingClass());
             PsiClass psiClass = psiClassHelper.findOnePsiClassByClassName(parameter.getParamType(), getProject());
+
             if (psiClass != null) {
                 PsiField[] fields = psiClass.getFields();
                 for (PsiField field : fields) {
@@ -99,6 +101,16 @@ public class PsiMethodHelper {
                         baseTypeParamMap.put(field.getName(), fieldDefaultValue);
                 }
             }
+
+          /*  PsiClass psiClass2 = psiClassHelper.findOnePsiClassByClassName2(parameter.getParamType(), getProject());
+            if (psiClass2 != null) {
+                PsiField[] fields = psiClass2.getFields();
+                for (PsiField field : fields) {
+                    Object fieldDefaultValue  = PsiClassHelper.getJavaBaseTypeDefaultValue(field.getType().getPresentableText());
+                    if(fieldDefaultValue != null)
+                        baseTypeParamMap.put(field.getName(), fieldDefaultValue);
+                }
+            }*/
         }
         return baseTypeParamMap;
     }
@@ -196,7 +208,7 @@ public class PsiMethodHelper {
     }
 
     @NotNull
-    public static String buildServiceUriPath(PsiMethod psiMethod) {
+    public String buildServiceUriPath() {
         String ctrlPath = null;
         String methodPath = null;
 
@@ -223,8 +235,8 @@ public class PsiMethodHelper {
     }
 
     @NotNull
-    public static String buildServiceUriPathWithParams(PsiMethod psiMethod) {
-        String serviceUriPath = buildServiceUriPath(psiMethod);
+    public String buildServiceUriPathWithParams() {
+        String serviceUriPath = buildServiceUriPath();
 
         String params = PsiMethodHelper.create(psiMethod).buildParamString();
         // RequestMapping 注解设置了 param
@@ -254,5 +266,31 @@ public class PsiMethodHelper {
     }
 
 
+
+    /* 生成完整 URL , 附带参数 */
+    @NotNull
+    public String buildFullUrlWithParams() {
+
+        String fullUrl = buildFullUrl();
+
+        String params = buildParamString();
+
+        // RequestMapping 注解设置了 param
+        if (!params.isEmpty()) {
+            StringBuilder urlBuilder = new StringBuilder(fullUrl);
+            return urlBuilder.append(fullUrl.contains("?") ? "&": "?").append(params).toString();
+        }
+        return  fullUrl;
+    }
+
+    @NotNull
+    public String buildFullUrl() {
+
+        String hostUri = myModule != null ? ModuleHelper.create(myModule).getServiceHostPrefix() : ModuleHelper.DEFAULT_URI;
+
+        String servicePath = buildServiceUriPath();
+
+        return hostUri.concat(servicePath);
+    }
 
 }

@@ -39,9 +39,9 @@ public class GenerateUrlAction /*extends RestfulMethodSpringSupportedAction*/ ex
         //TODO: 需完善 jaxrs 支持
         String servicePath;
         if (isJaxrsRestMethod(psiMethod)) {
-            servicePath = PsiMethodHelper.buildServiceUriPath(psiMethod);
+            servicePath = PsiMethodHelper.create(psiMethod).buildServiceUriPath();
         } else {
-            servicePath = PsiMethodHelper.buildServiceUriPathWithParams(psiMethod);
+            servicePath = PsiMethodHelper.create(psiMethod).buildServiceUriPathWithParams();
         }
 
         CopyPasteManager.getInstance().setContents(new StringSelection(servicePath));

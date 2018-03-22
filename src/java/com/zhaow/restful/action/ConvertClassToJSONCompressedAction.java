@@ -6,24 +6,22 @@ import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.zhaow.restful.common.PsiClassHelper;
+import org.jetbrains.kotlin.asJava.LightClassUtil;
+import org.jetbrains.kotlin.asJava.LightClassUtilsKt;
+import org.jetbrains.kotlin.psi.KtClassOrObject;
 
 import java.awt.datatransfer.StringSelection;
 
-public class ConvertClassToJSONCompressedAction extends AbstractBaseAction {
+public class ConvertClassToJSONCompressedAction extends ConvertClassToJSONAction {
     @Override
     public void actionPerformed(AnActionEvent e) {
-        PsiElement psiElement = e.getData(CommonDataKeys.PSI_ELEMENT);
-        if (psiElement instanceof PsiClass) {
-            PsiClass psiClass = (PsiClass) psiElement;
 
-            String json = PsiClassHelper.create(psiClass).convertClassToJSON(myProject(e),false);
-            CopyPasteManager.getInstance().setContents(new StringSelection(json));
-        }
-    }
-
-    @Override
-    public void update(AnActionEvent e) {
         PsiElement psiElement = e.getData(CommonDataKeys.PSI_ELEMENT);
-        setActionPresentationVisible(e,psiElement instanceof PsiClass);
+        PsiClass psiClass = getPsiClass(psiElement);
+
+        if(psiClass == null) return;
+
+        String json = PsiClassHelper.create(psiClass).convertClassToJSON(myProject(e), false);
+        CopyPasteManager.getInstance().setContents(new StringSelection(json));
     }
 }
