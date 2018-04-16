@@ -28,6 +28,7 @@ public class PsiAnnotationHelper {
                 values.add(initializer.getText().replaceAll("\\\"", ""));
             }
         }
+
         return values;
     }
 

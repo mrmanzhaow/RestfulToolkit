@@ -12,31 +12,35 @@ import com.zhaow.restful.annotations.SpringControllerAnnotation;
 import com.zhaow.restful.annotations.SpringRequestMethodAnnotation;
 import com.zhaow.restful.method.RequestPath;
 import com.zhaow.restful.common.spring.RequestMappingAnnotationHelper;
+import com.zhaow.restful.method.action.PropertiesHandler;
 import com.zhaow.restful.navigation.action.RestServiceItem;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.kotlin.asJava.LightClassUtilsKt;
+import org.jetbrains.kotlin.asJava.classes.KtLightClass;
 import org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex;
-import org.jetbrains.kotlin.name.Name;
 import org.jetbrains.kotlin.psi.*;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 public class SpringResolver  extends BaseServiceResolver  {
 /*    Module myModule;
     Project myProject;*/
+    PropertiesHandler propertiesHandler ;
     public SpringResolver(Module module) {
         myModule = module;
+        propertiesHandler = new PropertiesHandler(module);
     }
 
     public SpringResolver(Project project) {
         myProject = project;
+
     }
 
 
     //Note: 当Controller 类上没有标记@RequestMapping 注解时，方法上的@RequestMapping 都是绝对路径。
-    @Override
+    /*@Override
     public List<RestServiceItem> getServiceItemList(PsiMethod psiMethod) {
         List<RestServiceItem> itemList = new ArrayList<>();
 
@@ -45,30 +49,55 @@ public class SpringResolver  extends BaseServiceResolver  {
         //TODO:  controller 没有设置requestMapping，默认“/”
         // TODO : controller 设置了(rest)controller 所有方法未指定 requestMapping，所有方法均匹配； 存在方法指定 requestMapping，则只解析这些方法；
 //        String[] controllerPaths = RequestMappingAnnotationHelper.getRequestPaths(psiMethod.getContainingClass());
-        RequestPath[] classRequestPaths = RequestMappingAnnotationHelper.getRequestPaths(psiMethod.getContainingClass());
+        List<RequestPath> classRequestPaths = RequestMappingAnnotationHelper.getRequestPaths(psiMethod.getContainingClass());
         for (RequestPath classRequestPath : classRequestPaths) {
             for (RequestPath methodRequestPath : methodRequestPaths) {
-                RestServiceItem item = createRestServiceItem(psiMethod, classRequestPath.getPath(), methodRequestPath);
+                String path =  classRequestPath.getPath();
+//                String path = tryReplacePlaceholderValueInPath( classRequestPath.getPath() );
+
+                RestServiceItem item = createRestServiceItem(psiMethod, path, methodRequestPath);
                 itemList.add(item);
             }
         }
 
         return itemList;
-    }
+    }*/
+
+
+    /*
+    private String  tryReplacePlaceholderValueInPath(String path) {
+        if (!path.contains("${")) return path;
+
+        StringBuilder cleanerPath = new StringBuilder();
+
+        for (String s : path.split("\\$\\{")) {
+            if (s.contains("}")) {
+                String placeholder = s.substring(0, s.indexOf("}"));
+                String theOther = s.substring(s.indexOf("}")+1);
+
+                String propertyValue = propertiesHandler.getProperty(placeholder);
+
+                cleanerPath.append(StringUtils.isEmpty(propertyValue) ? s : propertyValue.trim()).append(theOther);
+            } else {
+                cleanerPath.append(s);
+            }
+        }
+        return cleanerPath.toString();
+    }*/
 
 
     @NotNull
-    @Override
+//    @Override
     public List<PsiMethod> getServicePsiMethodList(Project project, GlobalSearchScope globalSearchScope) {
         List<PsiMethod> psiMethodList = new ArrayList<>();
         //TODO : 这块需要改写，支持更多注解方式。
         // TODO: 这种实现的局限了其他方式实现的url映射（xml（类似struts），webflux routers）
         SpringControllerAnnotation[] supportedAnnotations = SpringControllerAnnotation.values();
         //        for (SpringControllerAnnotation controllerAnnotations : SpringControllerAnnotation.values()) {
-        for (PathMappingAnnotation controllerAnnotations : supportedAnnotations) {
+        for (PathMappingAnnotation controllerAnnotation : supportedAnnotations) {
 
             // 标注了 (Rest)Controller 注解的类，即 Controller 类
-            Collection<PsiAnnotation> psiAnnotations = JavaAnnotationIndex.getInstance().get(controllerAnnotations.getShortName(), project, globalSearchScope);
+            Collection<PsiAnnotation> psiAnnotations = JavaAnnotationIndex.getInstance().get(controllerAnnotation.getShortName(), project, globalSearchScope);
             for (PsiAnnotation psiAnnotation : psiAnnotations) {
                 PsiModifierList psiModifierList = (PsiModifierList) psiAnnotation.getParent();
                 PsiElement psiElement = psiModifierList.getParent();
@@ -91,6 +120,59 @@ public class SpringResolver  extends BaseServiceResolver  {
         return psiMethodList;
     }
 
+    @Override
+    public List<RestServiceItem> getRestServiceItemList(Project project, GlobalSearchScope globalSearchScope) {
+        List<RestServiceItem> itemList = new ArrayList<>();
+        //TODO : 这块需要改写，支持更多注解方式。
+        // TODO: 这种实现的局限了其他方式实现的url映射（xml（类似struts），webflux routers）
+        SpringControllerAnnotation[] supportedAnnotations = SpringControllerAnnotation.values();
+        //        for (SpringControllerAnnotation controllerAnnotations : SpringControllerAnnotation.values()) {
+        for (PathMappingAnnotation controllerAnnotation : supportedAnnotations) {
+
+            // 标注了 (Rest)Controller 注解的类，即 Controller 类
+            Collection<PsiAnnotation> psiAnnotations = JavaAnnotationIndex.getInstance().get(controllerAnnotation.getShortName(), project, globalSearchScope);
+            for (PsiAnnotation psiAnnotation : psiAnnotations) {
+                PsiModifierList psiModifierList = (PsiModifierList) psiAnnotation.getParent();
+                PsiElement psiElement = psiModifierList.getParent();
+
+                /*if (!(psiElement instanceof PsiClass)) continue; // RestController annotation 只出现在 class*/
+                PsiClass psiClass = (PsiClass) psiElement;
+
+                itemList.addAll(getServiceItemList(psiClass));
+            }
+
+        }
+//        return psiMethodList;
+        return itemList;
+    }
+
+    protected List<RestServiceItem> getServiceItemList(PsiClass psiClass) {
+        List<RestServiceItem> itemList = new ArrayList<>();
+
+        PsiMethod[] psiMethods = psiClass.getMethods();
+        if (psiMethods == null) {
+            return itemList;
+        }
+
+        List<RequestPath> classRequestPaths = RequestMappingAnnotationHelper.getRequestPaths(psiClass);
+
+        for (PsiMethod psiMethod : psiMethods) {
+            RequestPath[] methodRequestPaths = RequestMappingAnnotationHelper.getRequestPaths(psiMethod);
+
+            for (RequestPath classRequestPath : classRequestPaths) {
+                for (RequestPath methodRequestPath : methodRequestPaths) {
+                    String path =  classRequestPath.getPath();
+//                String path = tryReplacePlaceholderValueInPath( classRequestPath.getPath() );
+
+                    RestServiceItem item = createRestServiceItem(psiMethod, path, methodRequestPath);
+                    itemList.add(item);
+                }
+            }
+
+        }
+        return itemList;
+    }
+
 
     @Override
     public List<RestServiceItem> findAllSupportedServiceItemsInModule() {
@@ -104,7 +186,7 @@ public class SpringResolver  extends BaseServiceResolver  {
         List<RestServiceItem> itemList = new ArrayList<>();
 
         SpringControllerAnnotation[] supportedAnnotations = SpringControllerAnnotation.values();
-        //        for (SpringControllerAnnotation controllerAnnotations : SpringControllerAnnotation.values()) {
+
         for (PathMappingAnnotation controllerAnnotations : supportedAnnotations) {
 
             GlobalSearchScope globalSearchScope = GlobalSearchScope.moduleScope(myModule);
@@ -114,7 +196,7 @@ public class SpringResolver  extends BaseServiceResolver  {
             for (KtAnnotationEntry ktAnnotationEntry : ktAnnotationEntries) {
                 KtClass ktClass = (KtClass) ktAnnotationEntry.getParent().getParent();
 
-                List<RequestPath> classRequestPaths = getRequestPaths(ktClass);
+                /*List<RequestPath> classRequestPaths = getRequestPaths(ktClass);
 
                 List<KtNamedFunction> ktNamedFunctions = getKtNamedFunctions(ktClass);
                 for (KtNamedFunction fun : ktNamedFunctions) {
@@ -126,7 +208,10 @@ public class SpringResolver  extends BaseServiceResolver  {
 
                         }
                     }
-                }
+                }*/
+
+                PsiClass psiClass = LightClassUtilsKt.toLightClass(ktClass);
+                itemList.addAll(getServiceItemList(psiClass));
 
             }
 
@@ -135,6 +220,7 @@ public class SpringResolver  extends BaseServiceResolver  {
         return itemList;
     }
 
+    /*
     private List<RequestPath> getRequestPaths(KtNamedFunction fun) {
 //        String methodBody = fun.getBodyExpression().getText();// 方法体
         String defaultPath = fun.getName();
@@ -243,11 +329,12 @@ public class SpringResolver  extends BaseServiceResolver  {
                     requestPaths.add(new RequestPath(path, null));
                 }
 
-            /*  String annotationName = annotationEntries.get(0).getCalleeExpression().getText();
-                RequestPath requestPath = new RequestPath(path, method);*/
+            *//*  String annotationName = annotationEntries.get(0).getCalleeExpression().getText();
+                RequestPath requestPath = new RequestPath(path, method);*//*
             }
 
         }
         return requestPaths;
     }
+    */
 }

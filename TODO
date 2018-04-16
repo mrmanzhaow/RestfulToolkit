@@ -1,0 +1,274 @@
+参考 https://gitee.com/aiqinhai/generateGSDoc 在 alt enter 中添加 添加实现同名方法，并拷贝注释
+
+//// rest services 中添加 send request
+
+http://www.jianshu.com/p/ae90491f0c72   （codeGener.zip  https://pan.baidu.com/s/1c1WEtMw） 添加 alt insert
+
+
+http://www.jianshu.com/nb/8816511
+IntelliJ平台SDK开发指南（翻译）
+
+========================
+post 访问 javased 查找代码
+
+https://www.programcreek.com/java-api-examples/index.php
+
+
+
+
+
+===================================
+show rest services
+右键添加refresh
+
+-----------------------------------
+Rest Services 按模块--controller -- method 划分，get post 方法按图标标示
+
+
+========================
+post 访问 javased 查找代码
+
+https://www.programcreek.com/java-api-examples/index.php
+==============================
+RestServiceWindow 结构
+  splitPane
+    jTextField 是否保留query输入框查询？
+    jTree rest services 树状结构，0，单击在text区域显示service，1，双击跳转到代码位置，2，右键添加copy url，json ，postman 信息，apiview 参数等，3，右键发送请求，text区域编辑属性？
+    jTextField url（Send button）发送请求，rqeust body，自动在header中添加Content-type = application/json，请求response结果怎么展示？动态添加一个tab或是param下隐藏一个response textarea
+    jTextArea （Param） 文字区域显示服务信息，尤其request body 的json信息，彩蛋： 回车格式化，双击复制
+
+直接jTree 筛选url
+每个service跟节点显示servcie数量，restservieui中status意义不大
+问题？ 如何直接执行url，调用rest client plugin ？或者别的
+
+jTextArea 区域文本发生变更，进行提醒（右键发送请求，避免误伤）
+
+搜索 如何动态改变split 元素的高度 ,可以，直接设置即可： splitPane.setDividerLocation(1.0/2.0);
+
+
+=============================
+restful: 返回json，   RestController 或者 Controller + 方法@ResponseBody
+
+===============================
+方法如何添加方法直接调用request请求，直接调用插件。
+参考transelate 插件，或者 overflowstack 插件
+
+----------------------------
+方法添加右键尝试执行请求（TryExecuteRequestService），分析方法名add、save等方法常识去掉主键（猜测id，实体+id），创建时间(creteTime,insertTime..)，创建人(createUser,userId,accountId...)
+；update为更新方法（参考spring事务过滤，可以做成可配置化）
+=============================
+彩蛋：
+集成个推或环信，在url输入特定字符，可以接收消息？？
+
+
+=============================
+json 加高亮
+
+=============
+参考StackInTheFlow  重绘ui
+
+
+===============
+ReadHub 插件 （参考 StackInTheFlow 列表）
+
+
+=================
+spring boot 模块右键添加执行 Run [模块名称] Module， 仿 eclipse
+找到 包含 @SpringBootApplication 注解的类，PsiMethodUtil.findMainInClass(PsiClass)
+
+
+codegen：
+=========生成目录========
+
+= ====生成dto
+ 选择 Entity 参考 TreeJavaClassChooserDialog，ClassBrowser
+
+request mapping 可选 Include (Dependencies And )Libraries (Include non-project classes,只能通过module来加载，project没有library以来)
+GlobalSearchScope.moduleWithDependenciesAndLibrariesScope
+GlobalSearchScope.moduleRuntimeScope(module,false)
+GlobalSearchScope.moduleWithDependenciesAndLibrariesScope
+
+GlobalSearchScope.allScope(project);  所有scope
+GlobalSearchScope.allScope(everythingScope);  所有scope
+
+=====
+
+
+=======================
+如何在输入完整url情况下，
+1，后面的关键字如 http:/localhost:90/demo/只匹配demo并高亮，
+2，匹配 PathVariable 形式的完整url路径
+如：get  http:/localhost:90/demo/1111 匹配 /demo/{demoId}
+
+
+
+========================
+controller 默认path约定规则，如paoding-rose，DemoController---> /demo
+
+
+
+重写ChooseByNamePopup.getTransformedPattern 实现高亮部门pattern字段
+
+
+集成到 Search Everywhere
+<action id="SearchEverywhere" class="com.intellij.ide.actions.SearchEverywhereAction" />
+貌似这是唯一的入口
+
+
+=====================
+如果接口使用 action=aAction 情况处理
+
+
+=======================
+跟匹配相关的几个方法，
+1，GotoRequestMappingProvider extends DefaultChooseByNameItemProvider：
+ filterElements  处理匹配项
+
+2，Goto\RequestMappingModel extends FilteringGotoByModel implements CustomMatcherModel：
+ matches
+ removeModelSpecificMarkup，处理过滤项目， 具体用法跟，GotoRequestMappingProvider.filterElements 中处理匹配项有什么区别
+
+3，RestServiceChooseByNamePopup extends ChooseByNamePopup
+transformPattern(String pattern)  跟渲染有关
+
+
+1， RequestMappingContributor 提供数据
+
+
+==========test:
+http://localhost:8082/v1/system/de/addDept?headSchoolId=demoData&campusType=demoData&deptName=demoData&hasSubDept=1
+
+http://localhost:8082/v1/system/pt/3243/addSubDept?parentDeptId=demoData&topDeptId=demoData
+
+
+
+PsiClass.isExtendList
+PsiUtil.getTopLevelClass
+com.intellij.psi.util.PsiUtil.getTopLevelClass(psiElement)
+
+
+findMergedAnnotationAttributes
+
+
+IconLoader.getIcon("/icons/SpringBoot.png")
+
+Run 'Spring Boot App'
+Debug 'Spring Boot App'
+
+
+PathUtil
+
+
+action: copy full com.zhaow.restful.runner.SpringBootConfigurationType
+
+ClassUtil
+
+ClassInheritorsSearch  AllClassesSearch ClassesWithAnnotatedMembersSearch PsiShortNamesCache AnnotationTargetsSearch
+
+PsiManager.getInstance(project);
+
+
+
+============
+ PsiDocumentManager.getInstance(project).commitAllDocuments();   解决插件出现 different provider 问题
+===============================Spring 5 webflux
+JavaFindUsagesHandler
+
+FindUsagesHelper.processUsagesInText  查找引用   Spring 5 webflux 可用
+
+MethodSignatureUtil.hasOverloads  getOverloads
+PropertyUtil.getPropertyNameByGetter
+
+
+PsiConcatenationUtil.buildFormatString 转换json设置默认值可参考
+
+
+if (psi == null || !psi.isValid()) throw new PsiInvalidElementAccessException(psi); 判断psi是否有效
+
+
+PsiSearchHelper.SERVICE.getInstance()
+MethodChainsSearchUtil.getMethodWithMinNotPrimitiveParameters
+
+
+// service tree 显示正在加载
+//        点击某模块，只加载鼠标所在模块的服务？
+//        监听conroller变化
+//        研究spring requestmapping pattern，匹配真正的rest风格，pathvariable
+判断是否为list：
+((PsiClassReferenceType) psiFieldType).getReference().getReferenceNameElement().getText().contains("List")
+((PsiClassReferenceType) psiFieldType).getCanonicalText().startwith(java.util.List<com.piggymetrics.statistics.domain.Item>) && psiFieldType.getSuperTypes() contains util.List
+
+
+ JavaShortClassNameIndex.getInstance().get(shortClassName, project, GlobalSearchScope.moduleScope())
+
+ JavaShortClassNameIndex.getInstance().get("RetailPrice", project, GlobalSearchScope.projectScope(project))
+
+ JavaShortClassNameIndex.getInstance().get("RetailPrice", ((ModuleImpl) service.getModule()).myProject, GlobalSearchScope.moduleWithDependentsScope(service.module))
+
+ JavaShortClassNameIndex.getInstance().get("RetailPrice", , GlobalSearchScope.moduleWithDependenciesScope(service.module))
+
+=======================
+webflux:
+((PsiMethodImpl) element).getReturnTypeElement()  返回值为 PsiTypeElement:RouterFunction<?>
+((PsiMethod)psiMethod).getReturnTypeElement().getText()
+((PsiMethod)psiMethod).getReturnType().getCanonicalText()
+((PsiMethod)psiMethod).getReturnTypeElement().getInnermostComponentReferenceElement().getQualifiedName() =="org.springframework.web.reactive.function.server.RouterFunction"
+
+===============================
+<dubbo:protocol name="rest" server="tomcat" port="8888" contextpath="provider" accepts="500" />
+
+======================
+# RestfulToolkit
+## A toolkit for restful services development.
+
+* 1.*ONE STEP* to navigate to service declaration, support kotlin language.
+( use: `Ctrl + \` or `Ctrl + Alt + N` )
+* 2.Show rest service structure.
+* 3.A simple rest client tool.
+* 4.Add some useful functions at request method,
+ "Generate&Copy Query Param", "Generate&Copy URL", etc.
+* 5.Other useful functions, "Convert to JSON" to java class，format json data
+*( *Windows*: `Ctrl + Enter`; *Mac*: `Command + Enter` ) .
+
+ #### supported Spring framework (Spring MVC / Spring Boot)
+ #### supported JAX-RS (dubbo 2.6+, dubbox, )
+
+------
+### 一套 Restful 服务开发辅助工具集。
+
+* 1.根据 URL 直接导航到对应的方法定义,支持 kotlin 语言。 ( `Ctrl \` or `Ctrl Alt N` );
+* 2.提供了一个 Services tree 的显示窗口;
+* 3.一个简单的 Rest client 工具;
+* 4.在 Controller 方法上添加了 "复制生成 URL","复制方法参数","复制生成 JSON" (方法参数中存在 RequestBody 注解) 等几个功能;
+* 5.其他一些个人觉得有用的小功能, java 类上添加 "Convert to JSON" 功能，格式化 json 数据 ( *Windows*: `Ctrl + Enter`; *Mac*: `Command + Enter` )。
+
+ #### 支持 Spring 体系 (Spring MVC / Spring Boot)
+ #### 支持 JAX-RS (dubbo 2.6+, dubbox, )
+ ------------
+
+    @Consumes("application/json")
+    // 设置接收数据格式
+    @Produces("application/json")
+
+
+    ==============
+ 创建方法，自动添加注释；
+ 复制到Service DAO， 能不能做成同步的（提示是否自动创建Service DAO 方法，记住选项）
+ （定位 service dao，创建方法，不判断是否存在相同方法）
+
+ http://www.jetbrains.org/intellij/sdk/docs/basics/psi_cookbook.html
+
+==================
+RequstMapping:
+1,继承
+2，子类controller 未标注，继承父类
+3，只匹配设置了 requestmapping 的方法
+4，
+
+============================
+copy full url
+
+==========
+gen http
+
+

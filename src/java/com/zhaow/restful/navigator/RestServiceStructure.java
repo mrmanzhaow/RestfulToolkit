@@ -423,7 +423,7 @@ public class RestServiceStructure  extends SimpleTreeStructure {
         @Nullable
         @NonNls
         protected String getMenuId() {
-            return "NavigatorRestfulToolkitGroup";
+            return "Toolkit.NavigatorServiceMenu";
         }
 
 /*

@@ -1,41 +1,66 @@
 <idea-plugin url="https://plugins.jetbrains.com/plugin/10292-restfultoolkit" allow-bundled-update="true">
   <id>com.zhaow.restful.toolkit</id>
   <name>RestfulToolkit</name>
-  <version>1.0.9</version>
+  <version>2.0.2</version>
   <vendor email="mrmanzhaow@163.com" url="">zhaow</vendor>
 
   <description><![CDATA[
-      1.Navigate to service location ( request mapping ).(use: Ctrl \ or Ctrl Alt N ) <br>
-      2.Show rest service structure.<br>
-      3.Add some useful functions like ,"Generate&amp;Copy Query Param","Generate&amp;Copy URL" to request method.<br>
-      4.Other useful functions,like add "Convert to JSON" to java class.<br>
-      <br>
-      <em>Only support spring framework (Spring MVC / Spring Boot)</em>
-      <br>
-      --------------------------------------------------
-      <br>
-      1.根据 URL 直接导航到对应的方法, ( Ctrl \ or Ctrl Alt N );<br>
-      2.提供了一个 Services tree 的显示窗口;<br>
-      3.在 Controller 方法上添加了 "复制生成 URL","复制方法参数","复制生成 JSON" (方法参数中存在 RequestBody 注解) 等几个功能;<br>
-      4.其他一些个人觉得有用的小功能，比如在 java 类上添加 "Convert to JSON" 功能。<br>
-      <br>
-      <em>目前只支持 spring 体系 (Spring MVC / Spring Boot)</em>
+  <h3>A toolkit for RESTful services development.</h3>
+  <ul>
+   <li>1.ONE STEP to navigate to service declaration. ( use: Ctrl + \ or Ctrl + Alt + N ) </li>
+   <li>2.Show RESTful services structure.</li>
+   <li>3.A simple http request tool.</li>
+   <li>4.Add some useful functions at request method, Generate&amp;Copy Query Param, Generate&amp;Copy URL, etc. </li>
+   <li>5.Other functions: Convert to JSON; to java class，format json data <em>( Windows: Ctrl + Enter; Mac: Command + Enter ) .</li>
+ </ul>
+   <p> support Spring framework (Spring MVC / Spring Boot)
+   <p> support JAX-RS
+   <p> support Java and Kotlin languages
+ 
+  <hr />
+  <h3>一套 RESTful 服务开发辅助工具集。</h3>
+  <ul>
+   <li>1.根据 URL 直接跳转到对应的方法定义 ( Ctrl \ or Ctrl Alt N ); </li>
+   <li>2.提供了一个 Services tree 的显示窗口; </li>
+   <li>3.一个简单的 http 请求工具;</li>
+   <li>4.在请求方法上添加了有用功能: <em>复制生成 URL</em>;,<em>复制方法参数</em>... </li>
+   <li>5.其他功能: java 类上添加 <em>Convert to JSON</em> 功能，<em>格式化 json 数据</em> ( <em>Windows: Ctrl + Enter; Mac: Command + Enter</em> )。</li>
+</ul>
+   <p>支持 Spring 体系 (Spring MVC / Spring Boot)
+   <p>支持 JAX-RS
+   <p>支持 Java 和 Kotlin 语言。
+
     ]]></description>
 
   <change-notes><![CDATA[
-       <li>1.0.9 Service url navigation: matched restful style request mappings (e.g:"/product/{productId}");<br>
+        <li>2.0.2 Match mapped URLs for Controllers without @RequestMapping annotations;<br/>
+                  Supported mapped URLs for Controllers extended supper Object with @RequestMapping annotations.<br/>
+                  Added Popup Menus ( "Copy Full Url", "Jump to Source") for service nodes.
         </li>
-       <li>1.0.8 bug fix </li>
-       <li>1.0.7 match more mapping patterns; (识别更多映射)<br>
-                 replace icons;<br>
-                 add "Convert to JSON (Compressed)" function to java class;
+        <li>2.0.1 Fixed JSON generation issue with POJO contains array fields;
+        </li>
+        <li>2.0 Add Kotlin language supported;<br>
+                Fixed some bugs.
+        </li>
+        <li>1.1 Supported JAX-RS;<br>
+               Format JSON data , use "Command + Enter" on Mac
+               (增强 POJO 生成 json 功能,处理 List、Enum等类型，处理自关联场景);<br>
+               Fixed some bugs.<br>
+       </li>
+       <li>1.0.9 Service url navigation: matched restful style request mappings (e.g.:"/product/{productId}");<br>
+       </li>
+       <li>1.0.8 Bug fixed </li>
+       <li>1.0.7 Match more mapped URLs ; (识别更多映射)<br>
+                 Replaced icons;<br>
+                 Add "Convert to JSON (Compressed)" function to java class;
         </li>
        <li>1.0.6 Compatible with IDEA 2016 (兼容 IDEA 2016) </li>
        <li>1.0.5 修复发送请求IDE卡死的问题. </li>
-       <li>1.0.4 format date type (格式化 Date 类型) </li>
-       <li>1.0.3 small cleanup some code. </li>
+       <li>1.0.4 Format Date type (格式化 Date 类型) </li>
+       <li>1.0.3 Small cleanup some code. </li>
     ]]>
   </change-notes>
+    //TODO support Spring WebFlux
 
   <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
   <idea-version since-build="145.0"/>
@@ -48,6 +73,7 @@
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.properties</depends>
     <depends>org.jetbrains.plugins.yaml</depends>
+    <depends>org.jetbrains.kotlin</depends>
 
     <project-components>
         <component>
@@ -80,8 +106,8 @@
   <actions>
       <action id="Popup.PopupChoiceAction"
               class="com.zhaow.restful.popup.action.PopupChoiceAction"
-              text="Popup Restful Toolkit ..."
-              description="Popup Restful Toolkit ...">
+              text="Popup RESTful Toolkit ..."
+              description="Popup RESTful Toolkit ...">
           <add-to-group group-id="EditMenu" anchor="last"/>
           <keyboard-shortcut keymap="$default" first-keystroke="alt shift R"/>
       </action>
@@ -89,7 +115,7 @@
       <!--在controller method 中添加 RestfulToolkit 弹出操作，generate rest url、generate rest url with Possibly params （添加可能的参数，解析实体，@RequestBody）、gen json、
       gen key value for postman(postman 参数bulk edit)、 gen key value for apiview submit -->
       <!--rest 方法中添加-->
-      <group id="RestfulToolkitGroup" text="RestfulToolkit" description="Restful Toolkit actions for rest method group"
+      <group id="RestfulToolkitGroup" text="RestfulToolkit" description="RESTful Toolkit actions for rest method group"
             >
           <!--<add-to-group group-id="EditorPopupMenu" anchor="first"/>-->
           <action class="com.zhaow.restful.method.action.GenerateFullUrlAction" id="GenerateFullRestUrl" text="Generate &amp;&amp; Copy Full URL">
@@ -104,12 +130,13 @@
           <action class="com.zhaow.restful.method.action.GenerateQueryParamAction" id="BuildQueryParam" text="Generate &amp;&amp; Copy Query Param (Key Value)">
               <add-to-group group-id="EditorPopupMenu" anchor="first"/>
           </action>
+          <!--jaxrs-->
 
       </group>
 
 
-      <group id="RestfulToolkit.RestMethod.EditorPopupMenu" text="Restful Toolkit"
-             description="Restful Toolkit"
+      <group id="RestfulToolkit.RestMethod.EditorPopupMenu" text="RESTful Toolkit"
+             description="RESTful Toolkit"
              popup="false">
           <!--<add-to-group group-id="EditorPopupMenu" anchor="last" relative-to-action="EditorToggleColumnMode"/>-->
           <add-to-group group-id="EditorPopupMenu" anchor="first"/>
@@ -159,6 +186,18 @@
           <reference id="Toolkit.RefreshServices"/>
           <separator/>
           <reference id="Toolkit.GotoService"/>
+          <separator/>
+      </group>
+
+      <group id="Toolkit.NavigatorServiceMenu">
+          <action id="Menu.CopyFullUrlAction" class="com.zhaow.restful.navigator.CopyFullUrlAction"
+                  text="Copy Full Url"
+                  icon="AllIcons.Actions.Copy">
+          </action>
+          <action id="Menu.EditSourceAction" class="com.zhaow.restful.navigator.EditSourceAction"
+                  text="Jump to Source"
+                  icon="AllIcons.Actions.EditSource">
+          </action>
           <separator/>
       </group>
 

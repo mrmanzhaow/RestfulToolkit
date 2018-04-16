@@ -6,6 +6,7 @@ import com.zhaow.restful.annotations.SpringRequestMethodAnnotation;
 import com.zhaow.restful.common.PsiAnnotationHelper;
 import com.zhaow.restful.common.RestSupportedAnnotationHelper;
 import com.zhaow.restful.method.RequestPath;
+import com.zhaow.restful.method.action.PropertiesHandler;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -22,24 +23,38 @@ public class RequestMappingAnnotationHelper implements RestSupportedAnnotationHe
      * @param psiClass
      * @return
      */
-    public static RequestPath[] getRequestPaths(PsiClass psiClass) {
+    public static List<RequestPath> getRequestPaths(PsiClass psiClass) {
         PsiAnnotation[] annotations = psiClass.getModifierList().getAnnotations();
         if(annotations == null) return null;
-        List<RequestPath> list = new ArrayList<>();
 
+        PsiAnnotation requestMappingAnnotation = null;
+        List<RequestPath> list = new ArrayList<>();
         for (PsiAnnotation annotation : annotations) {
             for (SpringRequestMethodAnnotation mappingAnnotation : SpringRequestMethodAnnotation.values()) {
 //            for (PathMappingAnnotation mappingAnnotation : PathMappingAnnotation.allPathMappingAnnotations) {
                 if (annotation.getQualifiedName().equals(mappingAnnotation.getQualifiedName())) {
-                    List<RequestPath> requestMappings = getRequestMappings(annotation, "");
-                    if (requestMappings.size()>0) {
-                        list.addAll(requestMappings);
-                    }
+                    requestMappingAnnotation = annotation;
                 }
             }
         }
 
-        return list.toArray(new RequestPath[list.size()]);
+        if (requestMappingAnnotation != null) {
+            List<RequestPath> requestMappings = getRequestMappings(requestMappingAnnotation, "");
+            if (requestMappings.size()>0) {
+                list.addAll(requestMappings);
+            }
+        } else {
+            // TODO : 继承 RequestMapping
+            PsiClass superClass = psiClass.getSuperClass();
+            if (superClass != null && !superClass.getQualifiedName().equals("java.lang.Object")) {
+                list = getRequestPaths(superClass);
+            } else {
+                list.add(new RequestPath("/", null));
+            }
+
+        }
+
+        return list;
     }
 
     public static String[] getRequestMappingValues(PsiClass psiClass) {
@@ -84,10 +99,14 @@ public class RequestMappingAnnotationHelper implements RestSupportedAnnotationHe
         if (pathList.size() == 0) {
             pathList = PsiAnnotationHelper.getAnnotationAttributeValues(annotation, "path");
         }
+
         // 没有设置 value，默认方法名
         if (pathList.size() == 0) {
             pathList.add(defaultValue);
         }
+
+
+
         // todo: 处理没有设置 value 或 path 的 RequestMapping
 
 //        List<String> finalPathList = pathList;
@@ -107,7 +126,6 @@ public class RequestMappingAnnotationHelper implements RestSupportedAnnotationHe
 
         return mappingList;
     }
-
 
     /**
      * 过滤所有注解

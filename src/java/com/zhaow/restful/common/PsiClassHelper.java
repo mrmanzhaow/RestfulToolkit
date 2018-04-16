@@ -163,9 +163,11 @@ public class PsiClassHelper {
 
 
     @Nullable
-    public PsiClass findOnePsiClassByClassName(String className, Project project) {
+    public PsiClass findOnePsiClassByClassName(String qualifiedClassName, Project project) {
 //        return findOnePsiClassByClassName_deprecated(className, project);
-        return findOnePsiClassByClassName2(className, project);
+//        return findOnePsiClassByClassName2(className, project);
+        PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass(qualifiedClassName, GlobalSearchScope.allScope(project));
+        return psiClass;
     }
 
     @Nullable
@@ -258,6 +260,7 @@ public class PsiClassHelper {
         return psiClass;
     }
     public PsiClass[] tryDetectPsiClassByShortClassName2(String shortClassName,Project project) {
+
         PsiClass[] psiClasses = PsiShortNamesCache.getInstance(project).getClassesByName(shortClassName, GlobalSearchScope.allScope(project));// 所有的
 
         if (psiClasses != null && psiClasses.length > 0) {
@@ -305,7 +308,20 @@ public class PsiClassHelper {
                 map.put(fieldName, getJavaBaseTypeDefaultValue(typeName));
                 continue;
             }
-//Enum
+
+            if (psiFieldType instanceof PsiArrayType) {
+                PsiType psiType = ((PsiArrayType) psiFieldType).getComponentType();
+
+                Object baseTypeDefaultValue = getJavaBaseTypeDefaultValue( psiType.getPresentableText() );
+                if (baseTypeDefaultValue != null) {
+                    List<Object> objects = new ArrayList<>();
+                    objects.add(baseTypeDefaultValue);
+                    map.put(fieldName, objects );
+                }
+
+                continue;
+            }
+
             PsiClass resolveClass = ((PsiClassReferenceType) psiFieldType).resolve();
             if (isEnum(psiFieldType)) {
                 PsiField psiField = resolveClass.getFields()[0];
@@ -322,11 +338,7 @@ public class PsiClassHelper {
                 }
             }
 
-/*            psiClass.getQualifiedName().equals()
-
 //            recursive
-            ((PsiClassReferenceType) psiFieldType)*/
-
 
             if (isListFieldType(psiFieldType)) {
                 PsiType[] parameters = ((PsiClassReferenceType) psiFieldType).getParameters();
@@ -340,6 +352,15 @@ public class PsiClassHelper {
                     if (parameter.getPresentableText().equals(psiClass.getName())) {
                         Map<String, Object> objectMap = assembleClassToMap(psiClass, project, 0);
                         map.put(fieldName, objectMap);
+                        continue;
+                    }
+
+                    Object baseTypeDefaultValue = getJavaBaseTypeDefaultValue( parameter.getPresentableText() );
+                    if (baseTypeDefaultValue != null) {
+                        List<Object> objects = new ArrayList<>();
+                        objects.add(baseTypeDefaultValue);
+                        map.put(fieldName, objects );
+                        continue;
                     }
 
                     // TODO TODO TODO .................
@@ -352,21 +373,10 @@ public class PsiClassHelper {
                         Map<String, Object> objectMap = assembleClassToMap(onePsiClassByClassName, project, 0);
                         map.put(fieldName, objectMap);
                         continue;
-//                            (PsiClassReferenceType) parameter
                     }
                 }
+
             }
-
-/* /// hahahaha
-            Object fieldValueObj = setFieldDefaultValue(psiFieldType, project);
-
-            map.put(fieldName, fieldValueObj);*/
-
-//   todo:         判断 list 递归
-/*                if (isListFieldType(psiFieldType)) {
-
-                }*/
-
         }
 
         return map;

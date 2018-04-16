@@ -8,11 +8,18 @@ import com.intellij.openapi.ui.Splitter;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.treeStructure.SimpleTree;
+import com.zhaow.restful.navigation.action.RestServiceItem;
+import com.zhaow.utils.RestServiceDataKeys;
+import gnu.trove.THashSet;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 public class RestServicesNavigatorPanel extends SimpleToolWindowPanel implements DataProvider {
 
@@ -81,6 +88,16 @@ public class RestServicesNavigatorPanel extends SimpleToolWindowPanel implements
                         component.show(comp, x, y);
                     }
                 }
+
+                /*
+                final String id = getMenuId(getSelectedNodes(MavenProjectsStructure.MavenSimpleNode.class));
+                if (id != null) {
+                  final ActionGroup actionGroup = (ActionGroup)actionManager.getAction(id);
+                  if (actionGroup != null) {
+                    actionManager.createActionPopupMenu("", actionGroup).getComponent().show(comp, x, y);
+                  }
+                }
+                * */
             }
 
             @Nullable
@@ -106,6 +123,44 @@ public class RestServicesNavigatorPanel extends SimpleToolWindowPanel implements
     private Collection<? extends RestServiceStructure.BaseSimpleNode> getSelectedNodes(Class<RestServiceStructure.BaseSimpleNode> aClass) {
         return RestServiceStructure.getSelectedNodes(myTree, aClass);
     }
+
+    @Nullable
+    public Object getData(@NonNls String dataId) {
+/*
+        if (PlatformDataKeys.HELP_ID.is(dataId)) return "reference.toolWindows.mavenProjects";
+
+        if (CommonDataKeys.PROJECT.is(dataId)) return myProject;
+*/
+
+        if (RestServiceDataKeys.SERVICE_ITEMS.is(dataId)) {
+          return extractServices();
+        }
+
+        /*
+        if (MavenDataKeys.MAVEN_DEPENDENCIES.is(dataId)) {
+            return extractDependencies();
+        }
+        if (MavenDataKeys.MAVEN_PROJECTS_TREE.is(dataId)) {
+            return myTree;
+        }*/
+
+        return super.getData(dataId);
+    }
+
+    private List<RestServiceItem> extractServices() {
+        List<RestServiceItem> result = new ArrayList<>();
+
+        Collection<? extends RestServiceStructure.BaseSimpleNode> selectedNodes = getSelectedNodes(RestServiceStructure.BaseSimpleNode.class);
+        for (RestServiceStructure.BaseSimpleNode selectedNode : selectedNodes) {
+            if (selectedNode instanceof RestServiceStructure.ServiceNode) {
+                result.add(((RestServiceStructure.ServiceNode) selectedNode).myServiceItem);
+            }
+        }
+
+        return result;
+
+    }
+
 }
 
 

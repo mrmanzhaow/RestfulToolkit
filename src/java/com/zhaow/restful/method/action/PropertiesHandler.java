@@ -67,6 +67,24 @@ public class PropertiesHandler {
         return port != null ? port : "";
     }
 
+    public String getProperty(String propertyKey) {
+        String propertyValue = null;
+
+        activeProfile = findProfilePropertyValue();
+
+        //
+        if (activeProfile != null) {
+            propertyValue = findPropertyValue(propertyKey, activeProfile);
+        }
+        if (propertyValue == null) {
+            propertyValue = findPropertyValue(propertyKey, null);
+        }
+
+        return propertyValue != null ? propertyValue : "";
+    }
+
+
+
     /* try find spring.profiles.active value */
     private String findProfilePropertyValue() {
         String activeProfile = findPropertyValue(SPRING_PROFILE, null);
@@ -154,6 +172,7 @@ public class PropertiesHandler {
         // server.port=${PORT:8080}
         if (value != null && value.contains(placeholderPrefix) && value.contains(valueSeparator)) {
             String[] split = value.split(valueSeparator);
+
 
             if (split.length > 1) {
                 value = split[1].replace(placeholderSuffix, "");

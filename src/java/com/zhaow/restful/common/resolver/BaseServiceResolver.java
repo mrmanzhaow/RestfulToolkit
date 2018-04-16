@@ -26,6 +26,7 @@ public abstract class BaseServiceResolver implements ServiceResolver{
         }
 
         GlobalSearchScope globalSearchScope = GlobalSearchScope.moduleScope(myModule);
+/*
 
         List<PsiMethod> psiMethodList = this.getServicePsiMethodList(myModule.getProject(), globalSearchScope);
 
@@ -34,31 +35,39 @@ public abstract class BaseServiceResolver implements ServiceResolver{
             List<RestServiceItem> serviceItemList = getServiceItemList(psiMethod);
             itemList.addAll(serviceItemList);
         });
+*/
+
+        itemList = getRestServiceItemList(myModule.getProject(), globalSearchScope);
         return itemList;
     }
 
 
+    public abstract List<RestServiceItem> getRestServiceItemList(Project project, GlobalSearchScope globalSearchScope) ;
+
     @Override
     public List<RestServiceItem> findAllSupportedServiceItemsInProject() {
-        List<RestServiceItem> itemList = new ArrayList<>();
+        List<RestServiceItem> itemList = null;
         if(myProject == null && myModule != null){
             myProject = myModule.getProject();
         }
 
         if (myProject == null) {
-            return itemList;
+            return new ArrayList<>();
         }
 
         GlobalSearchScope globalSearchScope = GlobalSearchScope.projectScope(myProject);
 
-        List<PsiMethod> psiMethodList = this.getServicePsiMethodList(myProject, globalSearchScope);
+/*        List<PsiMethod> psiMethodList = this.getServicePsiMethodList(myProject, globalSearchScope);
 
         for (PsiMethod psiMethod : psiMethodList) {
             List<RestServiceItem> singleMethodServices = getServiceItemList(psiMethod);
 
             itemList.addAll(singleMethodServices);
 
-        }
+        }*/
+
+        itemList = getRestServiceItemList(myProject, globalSearchScope);
+
         return itemList;
 
     }
@@ -80,8 +89,8 @@ public abstract class BaseServiceResolver implements ServiceResolver{
         return item;
     }
 
-
+/*
     protected abstract List<RestServiceItem> getServiceItemList(PsiMethod psiMethod);
 
-    protected abstract List<PsiMethod> getServicePsiMethodList(Project myProject, GlobalSearchScope globalSearchScope);
+    protected abstract List<PsiMethod> getServicePsiMethodList(Project myProject, GlobalSearchScope globalSearchScope);*/
 }
