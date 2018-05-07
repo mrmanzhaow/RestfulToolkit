@@ -1,8 +1,6 @@
 package com.zhaow.restful.annotations;
 
 
-import java.util.List;
-
 public enum JaxrsPathAnnotation implements PathMappingAnnotation {
 
     PATH("Path", "javax.ws.rs.Path");

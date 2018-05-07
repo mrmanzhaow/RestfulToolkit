@@ -6,9 +6,6 @@ import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
 import com.zhaow.restful.common.PsiClassHelper;
-import org.jetbrains.kotlin.asJava.LightClassUtil;
-import org.jetbrains.kotlin.asJava.LightClassUtilsKt;
-import org.jetbrains.kotlin.psi.KtClassOrObject;
 
 import java.awt.datatransfer.StringSelection;
 

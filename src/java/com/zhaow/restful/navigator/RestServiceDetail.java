@@ -23,7 +23,10 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
-import java.awt.event.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Map;
 
@@ -84,7 +87,7 @@ public class RestServiceDetail extends JBPanel/*WithEmptyText*/{
 
     public void initTab() {
 //        jTextArea.setAutoscrolls(true);
-        String jsonFormat = "Try press 'Ctrl Enter'";
+        String jsonFormat = "Try press 'Ctrl(Cmd) Enter'";
         JTextArea textArea = createTextArea("{'key':'value'}");
 
         addRequestTabbedPane(jsonFormat, textArea);

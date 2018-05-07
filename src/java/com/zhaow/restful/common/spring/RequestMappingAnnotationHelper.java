@@ -6,9 +6,7 @@ import com.zhaow.restful.annotations.SpringRequestMethodAnnotation;
 import com.zhaow.restful.common.PsiAnnotationHelper;
 import com.zhaow.restful.common.RestSupportedAnnotationHelper;
 import com.zhaow.restful.method.RequestPath;
-import com.zhaow.restful.method.action.PropertiesHandler;
 import org.apache.commons.lang.StringUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;

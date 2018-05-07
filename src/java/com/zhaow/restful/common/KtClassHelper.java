@@ -1,31 +1,19 @@
 package com.zhaow.restful.common;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiClassType;
-import com.intellij.psi.PsiField;
-import com.intellij.psi.PsiType;
 import com.intellij.psi.impl.java.stubs.index.JavaShortClassNameIndex;
-import com.intellij.psi.impl.source.PsiClassReferenceType;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.search.PsiShortNamesCache;
-import com.intellij.util.text.DateFormatUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.jetbrains.kotlin.asJava.classes.KtLightClass;
 import org.jetbrains.kotlin.idea.caches.KotlinShortNamesCache;
 import org.jetbrains.kotlin.idea.stubindex.KotlinClassShortNameIndex;
-import org.jetbrains.kotlin.idea.stubindex.KotlinTypeAliasShortNameIndex;
 import org.jetbrains.kotlin.psi.KtClass;
 import org.jetbrains.kotlin.psi.KtClassOrObject;
-import org.jetbrains.kotlin.psi.KtParameter;
-import org.jetbrains.kotlin.psi.KtTypeAlias;
 
-import java.math.BigDecimal;
-import java.util.*;
+import java.util.Collection;
 
 // 处理 实体自关联，第二层自关联字段
 public class KtClassHelper {

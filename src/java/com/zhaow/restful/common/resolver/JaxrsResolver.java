@@ -4,23 +4,18 @@ package com.zhaow.restful.common.resolver;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
-//import com.intellij.psi.impl.java.stubs.index.JavaAnnotationIndex;
 import com.intellij.psi.impl.java.stubs.index.JavaAnnotationIndex;
 import com.intellij.psi.search.GlobalSearchScope;
-
 import com.zhaow.restful.annotations.JaxrsPathAnnotation;
-import com.zhaow.restful.annotations.PathMappingAnnotation;
-
 import com.zhaow.restful.common.jaxrs.JaxrsAnnotationHelper;
 import com.zhaow.restful.method.RequestPath;
-
 import com.zhaow.restful.navigation.action.RestServiceItem;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+
+//import com.intellij.psi.impl.java.stubs.index.JavaAnnotationIndex;
 
 public class JaxrsResolver extends BaseServiceResolver  {
 

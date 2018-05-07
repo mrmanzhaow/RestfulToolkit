@@ -2,14 +2,11 @@ package com.zhaow.restful.action;
 
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
-import com.intellij.openapi.ide.CopyPasteManager;
-//import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiElement;
-import com.zhaow.restful.common.KtClassHelper;
-//import com.zhaow.restful.common.PsiClassHelper;
 import org.jetbrains.kotlin.psi.KtClass;
 
-import java.awt.datatransfer.StringSelection;
+//import com.intellij.psi.PsiClass;
+//import com.zhaow.restful.common.PsiClassHelper;
 
 public class ConvertKtClassToJSONAction extends AbstractBaseAction {
     @Override

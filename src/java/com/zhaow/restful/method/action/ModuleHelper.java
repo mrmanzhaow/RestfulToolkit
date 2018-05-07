@@ -2,8 +2,6 @@ package com.zhaow.restful.method.action;
 
 
 import com.intellij.openapi.module.Module;
-import com.intellij.psi.PsiMethod;
-import com.zhaow.restful.common.PsiMethodHelper;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 

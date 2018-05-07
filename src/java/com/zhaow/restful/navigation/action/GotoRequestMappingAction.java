@@ -2,15 +2,13 @@ package com.zhaow.restful.navigation.action;
 
 import com.intellij.featureStatistics.FeatureUsageTracker;
 import com.intellij.ide.actions.GotoActionBase;
-import com.intellij.ide.util.gotoByName.ChooseByNameFilter;
-import com.intellij.ide.util.gotoByName.ChooseByNameModel;
-import com.intellij.ide.util.gotoByName.ChooseByNamePopup;
-import com.intellij.ide.util.gotoByName.DefaultChooseByNameItemProvider;
+import com.intellij.ide.util.gotoByName.*;
 import com.intellij.navigation.ChooseByNameContributor;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
+import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Pair;
@@ -20,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.awt.datatransfer.DataFlavor;
 import java.util.Arrays;
 import java.util.List;
 
@@ -64,7 +63,7 @@ public class GotoRequestMappingAction extends GotoActionBase implements DumbAwar
 
 //        this.showNavigationPopup(e, model, callback, false);
         GotoRequestMappingProvider provider = new GotoRequestMappingProvider(getPsiContext(e));
-        showNavigationPopup(e, model, callback, "Request Mapping Url matching pattern", true, true, provider);
+        showNavigationPopup(e, model, callback, "Request Mapping Url matching pattern", true, true, (ChooseByNameItemProvider)provider);
 //        showNavigationPopup(callback,"Request Mapping Url matching pattern",);
 
     }
@@ -76,7 +75,7 @@ public class GotoRequestMappingAction extends GotoActionBase implements DumbAwar
                                            @Nullable final String findUsagesTitle,
                                            boolean useSelectionFromEditor,
                                            final boolean allowMultipleSelection,
-                                           final DefaultChooseByNameItemProvider itemProvider) {
+                                           final ChooseByNameItemProvider itemProvider) {
         final Project project = e.getData(CommonDataKeys.PROJECT);
         boolean mayRequestOpenInCurrentWindow = model.willOpenEditor() && FileEditorManagerEx.getInstanceEx(project).hasSplitOrUndockedWindows();
         Pair<String, Integer> start = getInitialText(useSelectionFromEditor, e);
@@ -84,10 +83,35 @@ public class GotoRequestMappingAction extends GotoActionBase implements DumbAwar
                 ChooseByNamePopup.createPopup(project, model, itemProvider, start.first,
                         mayRequestOpenInCurrentWindow,
                         start.second), allowMultipleSelection);*/
+
+        String predefinedText = start.first;
+
+        String copiedUrl = tryFindCopiedURL();
+        if(copiedUrl != null) predefinedText = copiedUrl;
+        System.out.println(predefinedText);
+
         showNavigationPopup(callback, findUsagesTitle,
-                RestServiceChooseByNamePopup.createPopup(project, model, itemProvider, start.first,
+                RestServiceChooseByNamePopup.createPopup(project, model, itemProvider, predefinedText,
                         mayRequestOpenInCurrentWindow,
                         start.second), allowMultipleSelection);
+    }
+
+    private String tryFindCopiedURL() {
+        String contents = CopyPasteManager.getInstance().getContents(DataFlavor.stringFlavor);
+        if (contents == null) {
+            return null;
+        }
+
+        contents.trim();
+        if (contents.startsWith("http")) {
+            if (contents.length() <= 120) {
+                return contents;
+            }else {
+                return contents.substring(0, 120);
+            }
+        }
+
+        return null;
     }
 
 /*

@@ -38,6 +38,10 @@ public class RestServiceChooseByNamePopup extends ChooseByNamePopup {
                                                          @Nullable final String predefinedText,
                                                          boolean mayRequestOpenInCurrentWindow,
                                                          final int initialIndex) {
+      if (!StringUtil.isEmptyOrSpaces(predefinedText)) {
+          return new RestServiceChooseByNamePopup(project, model, provider, null, predefinedText, mayRequestOpenInCurrentWindow, initialIndex);
+      }
+
     final RestServiceChooseByNamePopup oldPopup = project == null ? null : project.getUserData(CHOOSE_BY_NAME_POPUP_IN_PROJECT_KEY);
     if (oldPopup != null) {
       oldPopup.close(false);

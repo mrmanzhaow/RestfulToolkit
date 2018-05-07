@@ -147,7 +147,7 @@ public class RestServicesNavigator extends AbstractProjectComponent implements P
         group.add(actionManager.getAction("Maven.ShowIgnored"));
         group.add(actionManager.getAction("Maven.ShowBasicPhasesOnly"));
         group.add(actionManager.getAction("Maven.AlwaysShowArtifactId")); // 默认显示 app serviceName
-        group.add(actionManager.getAction("Maven.ShowVersions")); // Rest.ShowServicePorts
+        group.add(actionManager.getAction("Maven.ShowVersions")); //
         myToolWindow.setAdditionalGearActions(group);*/
 
     }

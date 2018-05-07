@@ -4,11 +4,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.*;
-import com.intellij.psi.impl.java.stubs.index.JavaAnnotationIndex;
-import com.intellij.psi.search.GlobalSearchScope;
-import com.zhaow.restful.annotations.PathMappingAnnotation;
-import com.zhaow.restful.annotations.SpringControllerAnnotation;
+import com.intellij.psi.PsiMethod;
 import com.zhaow.restful.common.resolver.JaxrsResolver;
 import com.zhaow.restful.common.resolver.ServiceResolver;
 import com.zhaow.restful.common.resolver.SpringResolver;
@@ -17,7 +13,6 @@ import com.zhaow.restful.navigator.RestServiceProject;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**

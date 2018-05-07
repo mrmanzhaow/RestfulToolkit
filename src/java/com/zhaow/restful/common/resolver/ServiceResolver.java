@@ -2,7 +2,6 @@ package com.zhaow.restful.common.resolver;
 
 import com.zhaow.restful.navigation.action.RestServiceItem;
 
-import java.util.Collection;
 import java.util.List;
 
 public interface ServiceResolver {

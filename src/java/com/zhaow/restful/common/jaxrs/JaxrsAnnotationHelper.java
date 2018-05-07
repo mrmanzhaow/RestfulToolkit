@@ -1,14 +1,14 @@
 package com.zhaow.restful.common.jaxrs;
 
 
-import com.intellij.psi.*;
-
+import com.intellij.psi.PsiAnnotation;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiMethod;
 import com.zhaow.restful.annotations.JaxrsHttpMethodAnnotation;
 import com.zhaow.restful.annotations.JaxrsPathAnnotation;
 import com.zhaow.restful.common.PsiAnnotationHelper;
 import com.zhaow.restful.method.RequestPath;
 import org.apache.commons.lang.StringUtils;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;

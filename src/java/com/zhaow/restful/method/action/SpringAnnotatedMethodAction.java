@@ -8,7 +8,6 @@ import com.zhaow.restful.annotations.SpringControllerAnnotation;
 import com.zhaow.restful.annotations.SpringRequestMethodAnnotation;
 import org.jetbrains.kotlin.asJava.LightClassUtilsKt;
 import org.jetbrains.kotlin.asJava.classes.KtLightClass;
-import org.jetbrains.kotlin.psi.KtClass;
 import org.jetbrains.kotlin.psi.KtClassOrObject;
 import org.jetbrains.kotlin.psi.KtNamedFunction;
 

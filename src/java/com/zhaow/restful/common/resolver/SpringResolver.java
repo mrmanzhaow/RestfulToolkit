@@ -8,17 +8,15 @@ import com.intellij.psi.impl.java.stubs.index.JavaAnnotationIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.zhaow.restful.annotations.PathMappingAnnotation;
 import com.zhaow.restful.annotations.SpringControllerAnnotation;
-
-import com.zhaow.restful.annotations.SpringRequestMethodAnnotation;
-import com.zhaow.restful.method.RequestPath;
 import com.zhaow.restful.common.spring.RequestMappingAnnotationHelper;
+import com.zhaow.restful.method.RequestPath;
 import com.zhaow.restful.method.action.PropertiesHandler;
 import com.zhaow.restful.navigation.action.RestServiceItem;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.kotlin.asJava.LightClassUtilsKt;
-import org.jetbrains.kotlin.asJava.classes.KtLightClass;
 import org.jetbrains.kotlin.idea.stubindex.KotlinAnnotationsIndex;
-import org.jetbrains.kotlin.psi.*;
+import org.jetbrains.kotlin.psi.KtAnnotationEntry;
+import org.jetbrains.kotlin.psi.KtClass;
 
 import java.util.ArrayList;
 import java.util.Collection;

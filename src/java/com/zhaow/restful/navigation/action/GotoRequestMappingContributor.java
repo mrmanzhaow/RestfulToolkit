@@ -6,8 +6,6 @@ import com.intellij.navigation.NavigationItem;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.zhaow.restful.common.ServiceHelper;
-import com.zhaow.restful.common.resolver.ServiceResolver;
-import com.zhaow.restful.common.resolver.SpringResolver;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

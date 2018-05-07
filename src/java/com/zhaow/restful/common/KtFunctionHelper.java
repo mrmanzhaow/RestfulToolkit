@@ -3,23 +3,13 @@ package com.zhaow.restful.common;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.*;
-import com.zhaow.restful.annotations.JaxrsRequestAnnotation;
-import com.zhaow.restful.annotations.SpringControllerAnnotation;
-import com.zhaow.restful.common.jaxrs.JaxrsAnnotationHelper;
-import com.zhaow.restful.common.spring.RequestMappingAnnotationHelper;
-import com.zhaow.restful.method.Parameter;
+import com.intellij.psi.PsiMethod;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.asJava.LightClassUtilsKt;
-import org.jetbrains.kotlin.psi.*;
+import org.jetbrains.kotlin.psi.KtNamedFunction;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.zhaow.restful.annotations.SpringRequestParamAnnotations.*;
 
 /**
  * KtFunction处理类

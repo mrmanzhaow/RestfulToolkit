@@ -10,7 +10,6 @@ import com.intellij.ui.ScrollPaneFactory;
 import com.intellij.ui.treeStructure.SimpleTree;
 import com.zhaow.restful.navigation.action.RestServiceItem;
 import com.zhaow.utils.RestServiceDataKeys;
-import gnu.trove.THashSet;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,14 +18,13 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
+
 
 public class RestServicesNavigatorPanel extends SimpleToolWindowPanel implements DataProvider {
 
     private final Project myProject;
     private final SimpleTree myTree;
     RestServiceDetail myRestServiceDetail;
-
 
     private JSplitPane servicesContentPaneJSplitPane;
     private Splitter servicesContentPaneSplitter ;
@@ -83,21 +81,13 @@ public class RestServicesNavigatorPanel extends SimpleToolWindowPanel implements
                 if (id != null) {
                     final ActionGroup actionGroup = (ActionGroup)actionManager.getAction(id);
                     if (actionGroup != null) {
+//                        actionManager.createActionPopupMenu("", actionGroup).getComponent().show(comp, x, y);
                         JPopupMenu component = actionManager.createActionPopupMenu("", actionGroup).getComponent();
 
                         component.show(comp, x, y);
                     }
                 }
 
-                /*
-                final String id = getMenuId(getSelectedNodes(MavenProjectsStructure.MavenSimpleNode.class));
-                if (id != null) {
-                  final ActionGroup actionGroup = (ActionGroup)actionManager.getAction(id);
-                  if (actionGroup != null) {
-                    actionManager.createActionPopupMenu("", actionGroup).getComponent().show(comp, x, y);
-                  }
-                }
-                * */
             }
 
             @Nullable
@@ -126,23 +116,10 @@ public class RestServicesNavigatorPanel extends SimpleToolWindowPanel implements
 
     @Nullable
     public Object getData(@NonNls String dataId) {
-/*
-        if (PlatformDataKeys.HELP_ID.is(dataId)) return "reference.toolWindows.mavenProjects";
-
-        if (CommonDataKeys.PROJECT.is(dataId)) return myProject;
-*/
 
         if (RestServiceDataKeys.SERVICE_ITEMS.is(dataId)) {
           return extractServices();
         }
-
-        /*
-        if (MavenDataKeys.MAVEN_DEPENDENCIES.is(dataId)) {
-            return extractDependencies();
-        }
-        if (MavenDataKeys.MAVEN_PROJECTS_TREE.is(dataId)) {
-            return myTree;
-        }*/
 
         return super.getData(dataId);
     }
