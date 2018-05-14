@@ -22,7 +22,6 @@ public class ToolkitUtil {
         if (project.isDisposed()) return;
 
         if (isNoBackgroundMode()) {
-            System.out.println(1);
             r.run();
             return;
         }

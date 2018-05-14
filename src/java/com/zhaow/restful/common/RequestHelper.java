@@ -1,5 +1,6 @@
 package com.zhaow.restful.common;
 
+import com.zhaow.utils.JsonUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -179,7 +180,8 @@ public class RequestHelper {
             postMethod.setEntity(httpEntity);                                          //设置post请求实体
 
             response = httpClient.execute(postMethod);
-            result = toString(httpEntity);
+            result = toString(response.getEntity());
+
         } catch (UnsupportedEncodingException e) {
             result = "URL: " + url + "\n\n" + e.toString();
 //            e.printStackTrace();
@@ -218,11 +220,15 @@ public class RequestHelper {
         String result = null;
         try {
             result = EntityUtils.toString(entity, Charset.forName("UTF-8"));
+
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return result != null ? result : "";
+        if(result != null && JsonUtils.isValidJson(result))
+            return JsonUtils.format(result);
+
+        return "";
     }
 
 

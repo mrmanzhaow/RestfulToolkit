@@ -1,8 +1,10 @@
 package com.zhaow.utils;
 
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 import com.intellij.openapi.util.text.StringUtil;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author zhaow
@@ -21,5 +23,14 @@ public class JsonUtils {
         } catch (JsonParseException e) {
             return false;
         }
+    }
+
+
+    public static String format(String str) {
+        JsonParser parser = new JsonParser();
+        JsonElement parse = parser.parse(str);
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        String json = gson.toJson(parse);
+        return json;
     }
 }

@@ -155,9 +155,8 @@ public class RestServiceDetail extends JBPanel/*WithEmptyText*/{
                     final Runnable runnable = () -> {
                         String url = urlField.getText();
 
-                        String requestParamsText = requestParamsTextArea.getText();
-
                         if (requestParamsTextArea != null) {
+                            String requestParamsText = requestParamsTextArea.getText();
                             Map<String, String> paramMap = ToolkitUtil.textToParamMap(requestParamsText);
                             if (paramMap != null && paramMap.size() > 0) {
                                 // set PathVariable value to request URI
@@ -208,8 +207,34 @@ public class RestServiceDetail extends JBPanel/*WithEmptyText*/{
     }
 
     private void bindUrlTextActionListener() {
+         requestTabbedPane.addMouseListener(new MouseAdapter() {
+             @Override
+             public void mouseClicked(MouseEvent e) {
+                 System.out.println(e.getClickCount());
+                 super.mouseClicked(e);
+//                urlField.moveCaretPosition(urlField.getDocument().getLength());
+//                urlField.select(0,0);
+             }
 
-        urlField.addMouseListener(new MouseAdapter() {
+             @Override
+             public void mousePressed(MouseEvent e) {
+                 super.mousePressed(e);
+                urlField.selectAll();
+             }
+             @Override
+             public void mouseEntered(MouseEvent e) {
+                 super.mousePressed(e);
+                 urlField.selectAll();
+             }
+             @Override
+             public void mouseMoved(MouseEvent e) {
+                 super.mousePressed(e);
+                 urlField.selectAll();
+             }
+         });
+
+
+        /*urlField.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 System.out.println(e.getClickCount());
@@ -233,7 +258,7 @@ public class RestServiceDetail extends JBPanel/*WithEmptyText*/{
                 super.mousePressed(e);
                 urlField.selectAll();
             }
-        });
+        });*/
 
         methodField.addMouseListener(new MouseAdapter() {
             @Override

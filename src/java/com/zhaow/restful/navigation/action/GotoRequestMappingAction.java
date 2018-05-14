@@ -68,7 +68,8 @@ public class GotoRequestMappingAction extends GotoActionBase implements DumbAwar
 
     }
 
-    @Override
+// TODO IDEA 2018 删了？
+//    @Override
     protected <T> void showNavigationPopup(AnActionEvent e,
                                            ChooseByNameModel model,
                                            final GotoActionCallback<T> callback,
@@ -84,11 +85,9 @@ public class GotoRequestMappingAction extends GotoActionBase implements DumbAwar
                         mayRequestOpenInCurrentWindow,
                         start.second), allowMultipleSelection);*/
 
-        String predefinedText = start.first;
+        String copiedURL = tryFindCopiedURL();
 
-        String copiedUrl = tryFindCopiedURL();
-        if(copiedUrl != null) predefinedText = copiedUrl;
-        System.out.println(predefinedText);
+        String predefinedText = start.first == null ? copiedURL : start.first;
 
         showNavigationPopup(callback, findUsagesTitle,
                 RestServiceChooseByNamePopup.createPopup(project, model, itemProvider, predefinedText,
@@ -102,7 +101,7 @@ public class GotoRequestMappingAction extends GotoActionBase implements DumbAwar
             return null;
         }
 
-        contents.trim();
+        contents = contents.trim();
         if (contents.startsWith("http")) {
             if (contents.length() <= 120) {
                 return contents;
