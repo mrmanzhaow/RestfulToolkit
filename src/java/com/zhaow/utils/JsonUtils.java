@@ -3,9 +3,6 @@ package com.zhaow.utils;
 import com.google.gson.*;
 import com.intellij.openapi.util.text.StringUtil;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * @author zhaow
  */
@@ -17,14 +14,9 @@ public class JsonUtils {
         if (StringUtil.isEmptyOrSpaces(json)) {
             return false;
         }
-        try {
-            new JsonParser().parse(json);
-            return true;
-        } catch (JsonParseException e) {
-            return false;
-        }
-    }
 
+        return isValidJsonObject(json) || isValidJsonArray(json);
+    }
 
     public static String format(String str) {
         JsonParser parser = new JsonParser();
@@ -33,4 +25,22 @@ public class JsonUtils {
         String json = gson.toJson(parse);
         return json;
     }
+
+    private static boolean isGsonFormat(String targetStr,Class clazz) {
+        try {
+            new Gson().fromJson(targetStr,clazz);
+            return true;
+        } catch(JsonSyntaxException ex) {
+            return false;
+        }
+    }
+
+    public static boolean isValidJsonObject(String targetStr){
+        return isGsonFormat(targetStr,JsonObject.class);
+    }
+
+    public static boolean isValidJsonArray(String targetStr){
+        return isGsonFormat(targetStr,JsonArray.class);
+    }
+
 }

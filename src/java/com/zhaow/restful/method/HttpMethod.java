@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum HttpMethod {
-    GET, POST, PUT, DELETE, PATCH;
+    GET, POST, PUT, DELETE, PATCH,HEAD,OPTION;
 
     private static final Map<String, HttpMethod> methodMap = new HashMap(8);
 

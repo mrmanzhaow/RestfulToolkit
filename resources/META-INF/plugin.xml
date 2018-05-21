@@ -1,7 +1,7 @@
 <idea-plugin url="https://plugins.jetbrains.com/plugin/10292-restfultoolkit" allow-bundled-update="true">
   <id>com.zhaow.restful.toolkit</id>
   <name>RestfulToolkit</name>
-  <version>2.0.3</version>
+  <version>2.0.4</version>
   <vendor email="mrmanzhaow@163.com" url="">zhaow</vendor>
 
   <description><![CDATA[
@@ -33,7 +33,10 @@
     ]]></description>
 
   <change-notes><![CDATA[
-        <li>2.0.3 Enhancements for navigate service(url), finding copied http url from clipboard.<br/>
+        <li>2.0.4 Fixed NullPointerException with Kotlin project.<br/>
+                  Fixed IllegalArgumentException: No enum constant com.zhaow.restful.method.HttpMethod.HEAD <br/>
+                  Supported Kotlin 1.2 level.
+        <li>2.0.3 Improvements in navigate service(url), auto pasted copied http url to from clipboard.<br/>
                   Bug fixed.<br/>
         </li>
         <li>2.0.2 Match mapped URLs for Controllers without @RequestMapping annotations;<br/>

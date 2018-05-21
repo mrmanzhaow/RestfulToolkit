@@ -51,9 +51,14 @@ public class RequestHelper {
 
             result = toString(entity);
             // System.out.println(response.getStatusLine().getStatusCode());
-        } catch (ClientProtocolException e){
+        } catch (UnsupportedEncodingException e) {
+            result = "There was an error accessing to URL: " + url + "\n\n" + e.toString();
+            e.printStackTrace();
+        } catch (ClientProtocolException e) {
+            result = "There was an error accessing to URL: " + url + "\n\n" + e.toString();
             e.printStackTrace();
         } catch (IOException e) {
+            result = "There was an error accessing to URL: " + url + "\n\n" + e.toString();
             e.printStackTrace();
         } finally {
             release(response, httpClient);
@@ -83,13 +88,13 @@ public class RequestHelper {
             result = toString(entity);
             // System.out.println(response.getStatusLine().getStatusCode());
         } catch (UnsupportedEncodingException e) {
-            result = "URL: " + url + "\n\n" + e.toString();
+            result = "There was an error accessing to URL: " + url + "\n\n" + e.toString();
             e.printStackTrace();
         } catch (ClientProtocolException e) {
-            result = "URL: " + url + "\n\n" + e.toString();
+            result = "There was an error accessing to URL: " + url + "\n\n" + e.toString();
             e.printStackTrace();
         } catch (IOException e) {
-            result = "URL: " + url + "\n\n" + e.toString();
+            result = "There was an error accessing to URL: " + url + "\n\n" + e.toString();
             e.printStackTrace();
         } finally {
             release(response, httpClient);
@@ -112,13 +117,13 @@ public class RequestHelper {
             result = toString(entity);
             // System.out.println(response.getStatusLine().getStatusCode());
         } catch (UnsupportedEncodingException e) {
-            result = "URL: " + url + "\n\n" + e.toString();
+            result = "There was an error accessing to URL: " + url + "\n\n" + e.toString();
             e.printStackTrace();
         } catch (ClientProtocolException e) {
-            result = "URL: " + url + "\n\n" + e.toString();
+            result = "There was an error accessing to URL: " + url + "\n\n" + e.toString();
             e.printStackTrace();
         } catch (IOException e) {
-            result = "URL: " + url + "\n\n" + e.toString();
+            result = "There was an error accessing to URL: " + url + "\n\n" + e.toString();
             e.printStackTrace();
         } finally {
             release(response, httpClient);
@@ -144,13 +149,13 @@ public class RequestHelper {
             HttpEntity entity = response.getEntity();
             result = toString(entity);
         } catch (UnsupportedEncodingException e) {
-            result = "URL: " + url + "\n\n" + e.toString();
+            result = "There was an error accessing to URL: " + url + "\n\n" + e.toString();
             e.printStackTrace();
         } catch (ClientProtocolException e) {
-            result = "URL: " + url + "\n\n" + e.toString();
+            result = "There was an error accessing to URL: " + url + "\n\n" + e.toString();
             e.printStackTrace();
         } catch (IOException e) {
-            result = "URL: " + url + "\n\n" + e.toString();
+            result = "There was an error accessing to URL: " + url + "\n\n" + e.toString();
             e.printStackTrace();
         } finally {
             release(response, httpClient);
@@ -183,10 +188,10 @@ public class RequestHelper {
             result = toString(response.getEntity());
 
         } catch (UnsupportedEncodingException e) {
-            result = "URL: " + url + "\n\n" + e.toString();
+            result = "There was an error accessing to URL: " + url + "\n\n" + e.toString();
 //            e.printStackTrace();
         } catch (IOException e) {
-            result = "URL: " + url + "\n\n" + e.toString();
+            result = "There was an error accessing to URL: " + url + "\n\n" + e.toString();
 //            e.printStackTrace();
         } finally {
             release(response, httpClient);

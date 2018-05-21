@@ -103,8 +103,6 @@ public class RequestMappingAnnotationHelper implements RestSupportedAnnotationHe
             pathList.add(defaultValue);
         }
 
-
-
         // todo: 处理没有设置 value 或 path 的 RequestMapping
 
 //        List<String> finalPathList = pathList;
@@ -139,8 +137,11 @@ public class RequestMappingAnnotationHelper implements RestSupportedAnnotationHe
         for (PsiAnnotation annotation : annotations) {
             for (SpringRequestMethodAnnotation mappingAnnotation : SpringRequestMethodAnnotation.values()) {
 //            for (PathMappingAnnotation mappingAnnotation : PathMappingAnnotation.allPathMappingAnnotations) {
-                if (annotation.getQualifiedName().equals(mappingAnnotation.getQualifiedName())) {
-                    List<RequestPath> requestMappings = getRequestMappings(annotation, psiMethod.getName());
+                if (mappingAnnotation.getQualifiedName().equals(annotation.getQualifiedName())) {
+
+//                    String defaultValue = psiMethod.getName();
+                    String defaultValue = "/";
+                    List<RequestPath> requestMappings = getRequestMappings(annotation, defaultValue);
                     if (requestMappings.size()>0) {
                         list.addAll(requestMappings);
                     }
@@ -168,9 +169,6 @@ public class RequestMappingAnnotationHelper implements RestSupportedAnnotationHe
         //一个value class com.intellij.psi.impl.source.tree.java.PsiLiteralExpressionImpl
         //多个value  class com.intellij.psi.impl.source.tree.java.PsiArrayInitializerMemberValueImpl
         PsiAnnotationMemberValue attributeValue = annotation.findDeclaredAttributeValue("value");
-
-        List<String> value = PsiAnnotationHelper.getAnnotationAttributeValues(annotation, "value");
-
 
         if (attributeValue instanceof PsiLiteralExpression) {
 
